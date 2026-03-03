@@ -77,66 +77,70 @@
             box-sizing: border-box;
             font-family: "Times New Roman", Times, serif;
             font-size: 10pt; /* Saiz font asas 10pt */
-            line-height: 1.6; 
+            line-height: 1.5; 
             position: relative;
         }
 
         /* Letterhead Styles */
         .letterhead {
-            text-align: center;
+            display: flex;
+            justify-content: flex-start; /* Mengumpulkan elemen ke kiri */
+            align-items: center;
+            gap: 20px; /* Jarak antara logo dan teks */
             border-bottom: 2px solid #000;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .letterhead-text {
+            text-align: left; 
         }
         .logo-sekolah {
-            width: 80px; 
+            width: 75px; 
             height: auto;
             display: block;
-            margin: 0 auto 10px auto; 
         }
         .school-name {
-            font-size: 12pt; /* Tepat 2pt lebih besar daripada font asas (10pt) */
+            font-size: 12pt; /* 2pt lebih besar */
             font-weight: bold;
-            margin: 0;
+            margin: 0 0 5px 0;
             text-transform: uppercase;
         }
-        .unit-name {
-            font-size: 10pt;
-            font-weight: bold;
-            margin: 5px 0 0 0;
-        }
-        .address-text {
-            font-size: 10pt;
+        .unit-name, .address-text {
+            font-size: 10pt; /* Saiz font seragam untuk bahagian alamat/unit */
             margin: 2px 0;
             font-family: Arial, sans-serif;
+            font-weight: normal;
+        }
+        .unit-name {
+            font-weight: bold;
         }
 
         /* Letter Body */
         .letter-body {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .letter-body p {
-            margin-top: 15px; /* Jarak yang luas tapi terkawal antara perenggan */
-            margin-bottom: 15px;
+            margin-top: 10px; 
+            margin-bottom: 10px;
             text-align: justify;
         }
         .subject {
             font-weight: bold;
             text-transform: uppercase;
             text-decoration: underline;
-            margin: 20px 0;
+            margin: 15px 0;
         }
         
         /* Signature Section Fixes */
         .signature {
-            margin-top: 25px; /* Kurangkan jarak dari teks sebelumnya */
+            margin-top: 15px;
         }
         .signature p {
-            margin: 0; /* Buang jarak perenggan untuk bahagian ini sahaja */
+            margin: 0; 
             line-height: 1.4;
         }
         .sign-space {
-            height: 45px; /* Ruang muat-muat untuk tandatangan tanpa memakan ruang kertas */
+            height: 30px; 
         }
 
         /* Action Box (Tear-off slip) */
@@ -242,13 +246,15 @@
         
         <div class="letterhead">
             <img src="logo_sekolah.png" alt="Logo Sekolah Kebangsaan Cherating" class="logo-sekolah">
-            <p class="school-name">Sekolah Kebangsaan Cherating</p>
-            <p class="unit-name">Unit Hal Ehwal Murid (Disiplin)</p>
-            <p class="address-text">26080 Kuantan, Pahang Darul Makmur</p>
+            <div class="letterhead-text">
+                <p class="school-name">Sekolah Kebangsaan Cherating</p>
+                <p class="unit-name">Unit Hal Ehwal Murid (Disiplin)</p>
+                <p class="address-text">26080 Kuantan, Pahang Darul Makmur</p>
+            </div>
         </div>
 
         <div class="letter-body">
-            <div style="text-align: right; margin-bottom: 25px;">
+            <div style="text-align: right; margin-bottom: 20px;">
                 Tarikh: <span id="outDate"><strong>[Tarikh]</strong></span>
             </div>
 
