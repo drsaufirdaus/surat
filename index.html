@@ -71,14 +71,13 @@
         .letter-container {
             width: 210mm;
             min-height: 297mm;
-            /* Jarak atas dikurangkan kepada 10mm supaya logo lebih atas */
-            padding: 10mm 20mm 20mm 20mm; 
+            padding: 15mm 20mm 20mm 20mm; 
             background: white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             box-sizing: border-box;
             font-family: "Times New Roman", Times, serif;
-            font-size: 12pt;
-            line-height: 1.4; /* Dikurangkan sedikit supaya muat 1 muka surat */
+            font-size: 11pt; /* Saiz font asas ditetapkan kepada 11pt */
+            line-height: 1.6; /* Jarak baris yang lebih luas (ample spacing) */
             position: relative;
         }
 
@@ -86,25 +85,30 @@
         .letterhead {
             text-align: center;
             border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
         }
         .logo-sekolah {
             width: 80px; 
             height: auto;
             display: block;
-            margin: 0 auto 5px auto; 
+            margin: 0 auto 10px auto; 
         }
         .school-name {
-            font-size: 16pt;
+            font-size: 13pt; /* Tepat 2pt lebih besar daripada font asas (11pt) */
             font-weight: bold;
             margin: 0;
             text-transform: uppercase;
         }
         .unit-name {
-            font-size: 12pt;
+            font-size: 11pt;
             font-weight: bold;
             margin: 5px 0 0 0;
+        }
+        .address-text {
+            font-size: 11pt;
+            margin: 2px 0;
+            font-family: Arial, sans-serif;
         }
 
         /* Letter Body */
@@ -112,23 +116,23 @@
             margin-bottom: 20px;
         }
         .letter-body p {
-            margin-top: 8px;
-            margin-bottom: 8px;
+            margin-top: 12px; /* Jarak antara perenggan yang lebih luas */
+            margin-bottom: 12px;
         }
         .subject {
             font-weight: bold;
             text-transform: uppercase;
             text-decoration: underline;
-            margin: 15px 0;
+            margin: 20px 0;
         }
         .signature {
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
         /* Action Box (Tear-off slip) */
         .action-box {
             border: 2px dashed #000;
-            padding: 15px;
+            padding: 20px;
             margin-top: 20px;
             font-family: Arial, sans-serif;
             font-size: 11pt;
@@ -138,7 +142,8 @@
             margin-top: 0;
             text-align: center;
             text-transform: uppercase;
-            font-size: 10pt;
+            font-size: 11pt;
+            font-weight: bold;
         }
         .cut-line-text {
             text-align: center;
@@ -159,7 +164,7 @@
         .page-break {
             break-before: page;
             page-break-before: always;
-            padding-top: 15mm; /* Jarak dari atas untuk muka surat 2 */
+            padding-top: 20mm; /* Ruang atas untuk muka surat 2 supaya tidak terlalu rapat */
         }
 
         /* Print Settings */
@@ -176,13 +181,16 @@
             .letter-container {
                 box-shadow: none;
                 margin: 0;
-                /* Mengekalkan jarak atas cetakan yang kecil */
-                padding: 10mm 15mm 15mm 15mm; 
+                padding: 10mm 20mm 15mm 20mm; /* Margin pencetak */
                 width: 100%;
+                height: auto;
+            }
+            .page-break {
+                padding-top: 15mm;
             }
             @page {
                 size: A4;
-                margin: 0; /* Mengelakkan header/footer lalai (default) dari browser */
+                margin: 0; /* Mengelakkan header/footer dari browser */
             }
         }
     </style>
@@ -226,11 +234,11 @@
             <img src="logo_sekolah.png" alt="Logo Sekolah Kebangsaan Cherating" class="logo-sekolah">
             <p class="school-name">Sekolah Kebangsaan Cherating</p>
             <p class="unit-name">Unit Hal Ehwal Murid (Disiplin)</p>
-            <p style="font-size: 10pt; margin: 2px 0; font-family: Arial;">26080 Kuantan, Pahang Darul Makmur</p>
+            <p class="address-text">26080 Kuantan, Pahang Darul Makmur</p>
         </div>
 
         <div class="letter-body">
-            <div style="text-align: right; margin-bottom: 15px;">
+            <div style="text-align: right; margin-bottom: 25px;">
                 Tarikh: <span id="outDate"><strong>[Tarikh]</strong></span>
             </div>
 
@@ -293,10 +301,10 @@
                 <p>Saya, penjaga kepada <strong><span id="outStudentBox">[Nama Murid]</span></strong> dari kelas <strong><span id="outClassBox">[Kelas]</span></strong> mengambil maklum tentang isu disiplin yang dimaklumkan.</p>
                 
                 <p>Tindakan / Langkah pembetulan yang telah saya ambil ke atas anak jagaan saya adalah:</p>
-                <div style="border-bottom: 1px dotted #000; height: 30px; width: 100%; margin-bottom: 10px;"></div>
-                <div style="border-bottom: 1px dotted #000; height: 30px; width: 100%; margin-bottom: 20px;"></div>
+                <div style="border-bottom: 1px dotted #000; height: 30px; width: 100%; margin-bottom: 15px;"></div>
+                <div style="border-bottom: 1px dotted #000; height: 30px; width: 100%; margin-bottom: 25px;"></div>
 
-                <table style="width: 100%; margin-top: 30px;">
+                <table style="width: 100%; margin-top: 40px;">
                     <tr>
                         <td style="width: 60%;">
                             Tandatangan: ...................................................<br><br>
