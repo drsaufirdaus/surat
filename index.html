@@ -89,7 +89,7 @@
             gap: 20px; 
             border-bottom: 2px solid #000;
             padding-bottom: 10px; 
-            margin-bottom: 20px; /* Jarak yang luas antara kepala surat dan tarikh */
+            margin-bottom: 15px; /* Jarak yang luas antara kepala surat dan rujukan */
         }
         .letterhead-text {
             text-align: left; 
@@ -116,6 +116,11 @@
         }
 
         /* Letter Body - SPACING ADJUSTMENTS */
+        .reference-date-block {
+            text-align: right;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
         .letter-body p {
             margin: 0 0 18px 0; /* Memberikan kelegaan (18px jarak) tepat di BAWAH setiap perenggan */
             text-align: justify;
@@ -214,6 +219,11 @@
         <h2>Butiran Surat</h2>
         
         <div class="form-group">
+            <label for="refInput">Siri Rujukan (Dlm Kurungan):</label>
+            <input type="text" id="refInput" placeholder="Cth: 12" oninput="updateLetter()">
+        </div>
+
+        <div class="form-group">
             <label for="dateInput">Tarikh Surat:</label>
             <input type="date" id="dateInput" onchange="updateLetter()">
         </div>
@@ -253,8 +263,9 @@
         </div>
 
         <div class="letter-body">
-            <div style="text-align: right; margin-bottom: 25px;">
-                Tarikh: <span id="outDate"><strong>[Tarikh]</strong></span>
+            <div class="reference-date-block">
+                Ruj. Kami : SKCRTG.700-7/1/1 ( <span id="outRef">&nbsp;&nbsp;&nbsp;&nbsp;</span> )<br>
+                Tarikh : <span id="outDate"><strong>[Tarikh]</strong></span>
             </div>
 
             <p>
@@ -341,6 +352,7 @@
     <script>
         function updateLetter() {
             // Get values from form
+            const refVal = document.getElementById('refInput').value;
             const dateVal = document.getElementById('dateInput').value;
             const parentVal = document.getElementById('parentInput').value;
             const studentVal = document.getElementById('studentInput').value;
@@ -358,7 +370,10 @@
             }
 
             // Update letter text
-            document.getElementById('outDate').innerText = dateVal ? formattedDate : "[Tarikh]";
+            // Guna &nbsp; (ruang kosong html) jika input kosong supaya kurungan tidak rapat
+            document.getElementById('outRef').innerHTML = refVal ? refVal : "&nbsp;&nbsp;&nbsp;&nbsp;";
+            document.getElementById('outDate').innerHTML = dateVal ? `<strong>${formattedDate}</strong>` : "<strong>[Tarikh]</strong>";
+            
             document.getElementById('outParent').innerText = parentVal || "[Nama Ibu Bapa / Penjaga]";
             
             document.getElementById('outStudent').innerText = studentVal || "[Nama Murid]";
