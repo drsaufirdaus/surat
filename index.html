@@ -71,22 +71,22 @@
         .letter-container {
             width: 210mm;
             min-height: 297mm;
-            padding: 15mm 20mm 20mm 20mm; 
+            padding: 15mm 20mm 15mm 20mm; 
             background: white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             box-sizing: border-box;
             font-family: "Times New Roman", Times, serif;
-            font-size: 10pt; /* Saiz font asas 10pt */
-            line-height: 1.5; 
+            font-size: 11pt; /* Saiz font asas ditukar kepada 11pt */
+            line-height: 1.4; /* Dilaras untuk muat 1 page dengan font 11pt */
             position: relative;
         }
 
         /* Letterhead Styles */
         .letterhead {
             display: flex;
-            justify-content: flex-start; /* Mengumpulkan elemen ke kiri */
+            justify-content: flex-start; 
             align-items: center;
-            gap: 20px; /* Jarak antara logo dan teks */
+            gap: 20px; 
             border-bottom: 2px solid #000;
             padding-bottom: 10px;
             margin-bottom: 15px;
@@ -100,13 +100,13 @@
             display: block;
         }
         .school-name {
-            font-size: 12pt; /* 2pt lebih besar */
+            font-size: 13pt; /* Saiz font nama sekolah ditukar kepada 13pt */
             font-weight: bold;
             margin: 0 0 5px 0;
             text-transform: uppercase;
         }
         .unit-name, .address-text {
-            font-size: 10pt; /* Saiz font seragam untuk bahagian alamat/unit */
+            font-size: 11pt; /* Sama dengan saiz font asas surat */
             margin: 2px 0;
             font-family: Arial, sans-serif;
             font-weight: normal;
@@ -117,7 +117,7 @@
 
         /* Letter Body */
         .letter-body {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .letter-body p {
             margin-top: 10px; 
@@ -137,7 +137,7 @@
         }
         .signature p {
             margin: 0; 
-            line-height: 1.4;
+            line-height: 1.3;
         }
         .sign-space {
             height: 30px; 
@@ -149,14 +149,14 @@
             padding: 20px;
             margin-top: 20px;
             font-family: Arial, sans-serif;
-            font-size: 10pt;
+            font-size: 11pt;
             background-color: #fafafa;
         }
         .action-box h4 {
             margin-top: 0;
             text-align: center;
             text-transform: uppercase;
-            font-size: 10pt;
+            font-size: 11pt;
             font-weight: bold;
         }
         .cut-line-text {
@@ -195,7 +195,7 @@
             .letter-container {
                 box-shadow: none;
                 margin: 0;
-                padding: 10mm 20mm 15mm 20mm; /* Margin pencetak */
+                padding: 10mm 15mm 10mm 15mm; /* Margin pencetak dilaras sikit untuk selamatkan ruang */
                 width: 100%;
                 min-height: auto; 
             }
