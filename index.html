@@ -18,7 +18,7 @@
 
         /* Form Controls Container */
         .controls {
-            width: 300px;
+            width: 320px;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -31,11 +31,11 @@
             color: #333;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             font-weight: bold;
             font-size: 0.9rem;
         }
@@ -49,7 +49,14 @@
         }
         .form-group textarea {
             resize: vertical;
-            height: 80px;
+            height: 60px;
+        }
+        .meet-fields {
+            background-color: #f0f8ff;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px dashed #b3d4fc;
+            margin-bottom: 15px;
         }
         .btn-print {
             width: 100%;
@@ -62,6 +69,7 @@
             font-size: 1rem;
             font-weight: bold;
             transition: background 0.3s;
+            margin-top: 10px;
         }
         .btn-print:hover {
             background: #004494;
@@ -122,20 +130,34 @@
             line-height: 1.5;
         }
         .letter-body p {
-            margin: 0 0 18px 0; 
+            margin: 0 0 14px 0; /* Dikurangkan sikit utk selamatkan ruang jadual */
             text-align: justify;
         }
         .subject {
             font-weight: bold;
             text-transform: uppercase;
             text-decoration: underline;
-            margin: 20px 0; 
+            margin: 15px 0; 
             display: block;
         }
         
+        /* Meeting Table Style */
+        .meeting-table {
+            width: 80%;
+            margin: 10px 0 15px 30px;
+            border-collapse: collapse;
+        }
+        .meeting-table td {
+            padding: 4px 8px;
+            font-weight: bold;
+        }
+        .meeting-table td:first-child {
+            width: 25%;
+        }
+
         /* Signature Section Fixes */
         .signature {
-            margin-top: 10px; 
+            margin-top: 15px; 
         }
         .signature p {
             margin: 0; 
@@ -149,7 +171,7 @@
         .action-box {
             border: 2px dashed #000;
             padding: 20px;
-            margin-top: 20px;
+            margin-top: 15px;
             font-family: Arial, sans-serif;
             font-size: 12pt;
             background-color: #fafafa;
@@ -218,6 +240,14 @@
         <h2>Butiran Surat</h2>
         
         <div class="form-group">
+            <label for="letterType" style="color: #0056b3;">Jenis Surat:</label>
+            <select id="letterType" onchange="toggleMeetingFields(); updateLetter()">
+                <option value="makluman">Makluman Sahaja</option>
+                <option value="panggilan">Panggilan Penjaga (Berjumpa PK HEM)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label for="refInput">Siri Rujukan (Dlm Kurungan):</label>
             <input type="text" id="refInput" placeholder="Cth: 12" oninput="updateLetter()">
         </div>
@@ -230,8 +260,7 @@
         <div class="form-group">
             <label for="studentInput">Nama Murid (Cari & Pilih):</label>
             <input type="text" id="studentInput" list="studentNames" placeholder="Mula taip nama..." autocomplete="off" oninput="autoFillClass(); updateLetter()">
-            <datalist id="studentNames">
-                </datalist>
+            <datalist id="studentNames"></datalist>
         </div>
 
         <div class="form-group">
@@ -240,13 +269,28 @@
         </div>
 
         <div class="form-group">
-            <label for="parentInput">Nama Ibu/Bapa/Penjaga:</label>
+            <label for="parentInput">Nama Penjaga:</label>
             <input type="text" id="parentInput" placeholder="Cth: Encik Ahmad bin Ali" oninput="updateLetter()">
         </div>
 
         <div class="form-group">
             <label for="issueInput">Isu Disiplin / Kesalahan:</label>
-            <textarea id="issueInput" placeholder="Cth: Kerap ponteng sekolah tanpa sebab yang munasabah." oninput="updateLetter()"></textarea>
+            <textarea id="issueInput" placeholder="Cth: Kerap ponteng sekolah tanpa sebab munasabah." oninput="updateLetter()"></textarea>
+        </div>
+
+        <div id="meetingFieldsBlock" class="meet-fields" style="display: none;">
+            <div class="form-group">
+                <label for="meetDateInput">Tarikh Perjumpaan:</label>
+                <input type="date" id="meetDateInput" onchange="updateLetter()">
+            </div>
+            <div class="form-group">
+                <label for="meetTimeInput">Masa Perjumpaan:</label>
+                <input type="text" id="meetTimeInput" placeholder="Cth: 9.00 Pagi" oninput="updateLetter()">
+            </div>
+            <div class="form-group">
+                <label for="meetPlaceInput">Tempat Perjumpaan:</label>
+                <input type="text" id="meetPlaceInput" value="Bilik PK HEM, SK Cherating" oninput="updateLetter()">
+            </div>
         </div>
 
         <button class="btn-print" onclick="window.print()">Cetak Surat</button>
@@ -280,25 +324,32 @@
 
             <span class="subject">MAKLUMAN MASALAH DISIPLIN PELAJAR</span>
 
-            <p>
-                Dengan segala hormatnya, perkara di atas adalah dirujuk.
-            </p>
+            <p>Dengan segala hormatnya, perkara di atas adalah dirujuk.</p>
 
-            <p>
-                2. Adalah dimaklumkan bahawa anak jagaan tuan/puan didapati telah melakukan kesalahan disiplin di sekolah. Butiran kesalahan adalah seperti berikut:
-            </p>
+            <p>2. Adalah dimaklumkan bahawa anak jagaan tuan/puan didapati telah melakukan kesalahan disiplin di sekolah. Butiran kesalahan adalah seperti berikut:</p>
 
-            <p style="padding-left: 30px; font-weight: bold; margin-bottom: 20px;">
+            <p style="padding-left: 30px; font-weight: bold; margin-bottom: 15px;">
                 <span id="outIssue">[Sila nyatakan isu disiplin di ruang borang sebelah kiri]</span>
             </p>
 
-            <p>
-                3. Pihak sekolah memandang serius mengenai pelanggaran peraturan sekolah ini. Kami berharap tuan/puan dapat mengambil maklum akan perkara ini dan memberi kerjasama untuk menasihati anak jagaan tuan/puan agar tingkah laku ini tidak berulang pada masa hadapan.
-            </p>
+            <p id="outPara3">3. Pihak sekolah memandang serius mengenai pelanggaran peraturan sekolah ini. Kami berharap tuan/puan dapat mengambil maklum akan perkara ini dan memberi kerjasama untuk menasihati anak jagaan tuan/puan agar tingkah laku ini tidak berulang pada masa hadapan.</p>
 
-            <p>
-                4. Sila lengkapkan dan kembalikan keratan maklum balas yang dilampirkan bersama surat ini kepada pihak sekolah dalam kadar segera.
-            </p>
+            <table class="meeting-table" id="meetingTableBlock" style="display: none;">
+                <tr>
+                    <td>Tarikh</td>
+                    <td>: <span id="outMeetDate">[Tarikh Perjumpaan]</span></td>
+                </tr>
+                <tr>
+                    <td>Masa</td>
+                    <td>: <span id="outMeetTime">[Masa]</span></td>
+                </tr>
+                <tr>
+                    <td>Tempat</td>
+                    <td>: <span id="outMeetPlace">[Tempat]</span></td>
+                </tr>
+            </table>
+
+            <p id="outPara4">4. Sila lengkapkan dan kembalikan keratan maklum balas yang dilampirkan bersama surat ini kepada pihak sekolah dalam kadar segera.</p>
 
             <p>Kerjasama dan keprihatinan daripada pihak tuan/puan amat kami hargai.</p>
 
@@ -330,7 +381,8 @@
                 <p>Kepada: Guru Penolong Kanan Hal Ehwal Murid SK Cherating</p>
                 <p>Saya, penjaga kepada <strong><span id="outStudentBox">[Nama Murid]</span></strong> dari kelas <strong><span id="outClassBox">[Kelas]</span></strong> mengambil maklum tentang isu disiplin yang dimaklumkan.</p>
                 
-                <p style="margin-top: 20px;">Tindakan / Langkah pembetulan yang telah saya ambil ke atas anak jagaan saya adalah:</p>
+                <p style="margin-top: 20px;" id="outReplySlipText">Tindakan / Langkah pembetulan yang telah saya ambil ke atas anak jagaan saya adalah:</p>
+                
                 <div style="border-bottom: 1px dotted #000; height: 35px; width: 100%; margin-bottom: 15px;"></div>
                 <div style="border-bottom: 1px dotted #000; height: 35px; width: 100%; margin-bottom: 25px;"></div>
 
@@ -351,7 +403,7 @@
     </div>
 
     <script>
-        // Pangkalan Data Murid & Kelas yang telah dibersihkan sepenuhnya (Tiada MyKid)
+        // Pangkalan Data Murid & Kelas yang telah dibersihkan sepenuhnya
         const classData = {
             "1 Al-Biruni": ["ABDUL RAYYAN MIKAIL BIN ABDUL RASHID", "AHMAD DANISH AQEEL BIN AHMAD BARDAIN", "KHALISH NAUFAL BIN KHAIRUL ARMAN", "MOHAMAD AMMAR IRFAN BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZULFAN NAIM KHALISH BIN MOHD ZULKARNAIN", "MUHAMAD AFEEF ILYAS BIN MUHAMAD GHADAFFI", "MUHAMAD NAQIB RASYDAN BIN MOHAMAD RASYID", "MUHAMMAD ADYAN NAUFAL BIN ABDUL HANIF", "MUHAMMAD AISY FIRDAUS BIN MUHAMAAD FITRI", "MUHAMMAD DAYYAN ZAFFRAN BIN ABDULLAH", "MUHAMMAD FIRAS RIZQI BIN MUHD FADZLI", "MUHAMMAD IRFAN NAUFAL BIN MUHAMMAD ILYAS", "MUHAMMAD NUH RIFQI BIN AHMAD BAZLI", "MUHAMMAD RIZWAN HAQIMIE BIN ABDUL MUZIL", "MUHAMMAD UMAR AL-KHATTAB BIN MUHAMMAD FIRDAUS", "MUHAMMAD UMAR SHARIF BIN ZUL", "WAN MUHAMMAD AMZAR BIN WAN AZMAN", "ALYA ADRIANA BINTI MOHD RIZUAN", "HANA MEDINA BINTI MOHD. AIMAN NURHAKIM", "KYAYRA NADEERA HAURA BINTI MOHAMAD KHAIRUL NIZAM", "NAURA AISYAH BINTI MOHD ASRI", "NOR AIRA JANNAH BINTI MOHD ASNAWI", "NUR AAIRA QAISARA BINTI MOHD RIZAL", "NUR AIRA AMANI BINTI ALIAS", "NUR ASSYIFA HANEEM BINTI MOHD IKBAL HAKIM", "NUR AYRA AISYAH BINTI MOHD KHAIRI", "NUR FATHIA NAYLA BINTI MUHAMMAD YUSRI", "NUR HUMAIRA BINTI MUHD LUQMAN", "NUR JASMINE HANA MEDINA BINTI HIZWAN FAZRI", "NUR QALESYA BINTI YUSOF", "NUR SOFEA MEDINA BINTI MOHD SYUFIAN", "NURDIYANA AWFIYAH BINTI ZULKIFLI", "PUTERI EILYANA BINTI MUHAMMAD SHAFID", "ROS AMIRA SAFIYA BINTI ABDULLAH", "SITI SABARISHA BINTI MOHD SALEH", "SITI NORAAFIYAH INSYIRAH BT ABU HASSAN"],
             "1 Al-Farabi": ["ADAM DANIEL BIN MOHD SUKRI", "DANIAL NUQMAN BIN ABDUL HANIF SAFWAN", "MOHAMAD MIQAEL BIN MOHAMAD FAIZIE", "MOHAMAD ZULFAQAR BIN MOHAMAD NAKIAH L", "MUHAMAD ANAS MIKAIL BIN MUHAMAD NASSRUDIN", "MUHAMMAD ADAM BIN ABDUL RAUFF", "MUHAMMAD ALIFF NAUFAL BIN ZULNIZAN", "MUHAMMAD AQIB BIN MOHD ZAMZIRO", "MUHAMMAD ELMAN AUS BIN MOHD ADILA", "MUHAMMAD IMAN NAUFAL BIN ABDUL FATTAH", "MUHAMMAD IZZ AYAAZ BIN MOHD NAZARUDI", "MUHAMMAD SYAKIR NASRAN BIN MUHAMAD SHAZUAN", "NOAH MIQAEL BIN MOHAMMAD KHAIRIL MUZAFFAR", "NOR AISY ZUFAR BIN NOR ZULHAIRIE", "NUR MUHAMMAD AAFI MUSLIM BIN ARIF FADILLAH", "WAN MUHAMMAD HARITH BIN WAN MOHD FAHMI NASRI", "ZAYYAN AAKIF BIN MOHAMAD ZULAZLAN", "ADRIANA AMANDA A/P JEFFRY", "ATHIA ZARA BINTI MOHD ZAKI", "HAURA HASNA BINTI MOHD SHASRUL HASRA", "MARYAM FATHIYYAH BINTI ABD ZUKHRUFUDDIN", "NIA QALESYA BINTI MOHAMAD AZWAN IFRAM", "NOOR SYAFILA NATASYA BINTI ABD MALIK", "NUR AFEEYA FAQIHAH BINTI MOHAMAD FARID", "NUR AIREEN MEDINA BINTI AHMAD AIZAT", "NUR ATIYA AILEEN BINTI MOHD SOBRE", "NUR AZZAHRA SAFIYYAH BINTI MOHD SIDEK", "NUR FATIHAH AMALIA BINTI MOHD ROSNI", "NUR HUMAIRA BINTI ABDUL MUEIZ", "NUR QISYA ZAHRA BINTI ROIS", "NUR SYAHIRAH SOLEHAH BINTI BADRUL HISYAM", "NURIN AMNA HUWAIDA BINTI MOHD ROKMAN", "QHADEEJA AINNUR MEDINA BINTI ANWAR SHAFIQ", "SITI AFIA MIKAYLA BINTI SH.FIZULREZUAN", "TENGKU TEH ANNISAA BINTI TENGKU MOHD IKMAN HANIFF", "WAN AISYAH NABILAH BINTI WAN MOHAMAD HAFIQ", "WAN IMAN SAFA BINTI WAN MOHAMMAD SHUKRI"],
@@ -376,7 +428,6 @@
             "6 Al-Kindi": ["AMMAR ZIQRI BIN ZAHARI", "MOHAMAD HANIF BIN MOHAMAD FAIZIE", "MOHAMAD MIKAIL BIN JAMIL", "MUHAMMAD ADAM BIN ASHAARI", "MUHAMMAD ADRIAN MIKHAIL BIN MOHD ABASRI", "MUHAMMAD AFIRASH IKHWAN BIN MOHD IRWAN HAZUAN", "MUHAMMAD AIDIL HARITH BIN HAIRULAZAM", "MUHAMMAD AIZAT AMZAR BIN MOHD YAAKOB", "MUHAMMAD AMIN SYAZHAN BIN BADRUL HISYAM", "MUHAMMAD AQIF FITRI BIN MOHD ZAMRI", "MUHAMMAD ARFA HASIF BIN MOHD SHAMSURI", "MUHAMMAD ASYRAF RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD FARIZ HAKIMIE BIN ALIAS", "MUHAMMAD IQKLAS AZIQ BIN MUHAMMAD", "MUHAMMAD NOR IKHWAN BIN ABDULLAH", "MUHAMMAD SHAH AIDIL BIN SULAIMAN", "MUHAMMAD SHAMRIRULLOH BIN MUHAMMAD SAMRI", "MUHAMMAD THAQIF AFKAR BIN RUZLAN", "RAJA AQIL AISY HAFIDH BIN RAJA AZMAN", "AMMARA MALAEKA BINTI ABDUL 'AZHIM", "NUR AINA MAISARAH BINTI MUHAMMAD HAFIZAN", "NUR BATRISYA MAISARA BINTI MAZLAN", "NUR IMAN WADHIHAH BINTI PAXRURAZI", "NUR NAURAH ASSYIFAA BINTI ISMAIL", "NUR RAISHA AMNI BINTI MOHD RASHID", "NUR SYAFA AQILA BINTI ABDUL MU'IZ", "NUR SYAZA NABILAH BINTI MUHAMAD SHAZUAN", "NURUL AIN BATRISYIA BINTI ZULNIZAN", "NURUL SYAZWANI HUSNA BINTI YAHYA", "PUTERI NUR DAMIA MAISARAH BINTI MOHAMAD HAFIZ", "PUTRI NUR AIN NATASYA BINTI AMRAN", "PUTRI NUR SYAWAL DARWISYA BINTI MOHD HISHAM", "WAN NUR ALEEYA MAISARA BINTI WAN MOHD HAFIZUDDIN", "WAN NUR ANEESA BINTI WAN AZMAN", "WAN NUR MAWARDAH SAFIYYA BINTI WAN MUSTAFA", "NUR QAIRINA AMANI BINTI MOHD JUNAID"]
         };
 
-        // Menukarkan data menjadi gabungan 1 ke 1: NAMA -> KELAS
         const students = {};
         for (const className in classData) {
             classData[className].forEach(name => {
@@ -384,7 +435,6 @@
             });
         }
 
-        // Masukkan senarai nama murid ke dalam Carian Datalist
         const datalist = document.getElementById('studentNames');
         Object.keys(students).sort().forEach(name => {
             let opt = document.createElement('option');
@@ -392,21 +442,31 @@
             datalist.appendChild(opt);
         });
 
-        // Fungsi Auto-Isi Kelas
+        // Toggle jadual info perjumpaan
+        function toggleMeetingFields() {
+            const type = document.getElementById('letterType').value;
+            const meetFields = document.getElementById('meetingFieldsBlock');
+            
+            if (type === 'panggilan') {
+                meetFields.style.display = 'block';
+            } else {
+                meetFields.style.display = 'none';
+            }
+        }
+
         function autoFillClass() {
             const studentInput = document.getElementById('studentInput').value.trim();
             const classInput = document.getElementById('classInput');
             
-            // Semak jika nama tersebut ada dalam database (perlu pilih dengan tepat)
             if (students[studentInput]) {
-                classInput.value = students[studentInput]; // Terus automatik isi
+                classInput.value = students[studentInput]; 
             } else {
-                classInput.value = ""; // Kosongkan jika dipadam / tak sah
+                classInput.value = ""; 
             }
         }
 
-        // Fungsi kemas kini teks pada surat yang dipaparkan
         function updateLetter() {
+            const type = document.getElementById('letterType').value;
             const refVal = document.getElementById('refInput').value;
             const dateVal = document.getElementById('dateInput').value;
             const classVal = document.getElementById('classInput').value;
@@ -414,28 +474,53 @@
             const parentVal = document.getElementById('parentInput').value;
             const issueVal = document.getElementById('issueInput').value;
 
+            // Details untuk panggilan
+            const meetDateVal = document.getElementById('meetDateInput').value;
+            const meetTimeVal = document.getElementById('meetTimeInput').value;
+            const meetPlaceVal = document.getElementById('meetPlaceInput').value;
+
             // Format Tarikh 
-            let formattedDate = "[Tarikh]";
-            if(dateVal) {
-                const dateObj = new Date(dateVal);
+            function formatDate(dVal) {
+                if(!dVal) return "";
+                const dateObj = new Date(dVal);
                 const day = String(dateObj.getDate()).padStart(2, '0');
                 const month = String(dateObj.getMonth() + 1).padStart(2, '0'); 
                 const year = dateObj.getFullYear();
-                formattedDate = `${day}/${month}/${year}`;
+                return `${day}/${month}/${year}`;
             }
 
             document.getElementById('outRef').innerHTML = refVal ? refVal : "&nbsp;&nbsp;&nbsp;&nbsp;";
-            document.getElementById('outDate').innerHTML = dateVal ? `<strong>${formattedDate}</strong>` : "<strong>[Tarikh]</strong>";
+            document.getElementById('outDate').innerHTML = dateVal ? `<strong>${formatDate(dateVal)}</strong>` : "<strong>[Tarikh]</strong>";
             
             document.getElementById('outParent').innerText = parentVal || "[Nama Ibu Bapa / Penjaga]";
-            
             document.getElementById('outStudent').innerText = studentVal || "[Nama Murid]";
             document.getElementById('outStudentBox').innerText = studentVal || "[Nama Murid]";
-            
             document.getElementById('outClass').innerText = classVal || "[Kelas]";
             document.getElementById('outClassBox').innerText = classVal || "[Kelas]";
-            
             document.getElementById('outIssue').innerText = issueVal || "[Sila nyatakan isu disiplin di ruang borang sebelah kiri]";
+
+            // LOGIK JENIS SURAT
+            const para3 = document.getElementById('outPara3');
+            const para4 = document.getElementById('outPara4');
+            const meetingTable = document.getElementById('meetingTableBlock');
+            const replySlipText = document.getElementById('outReplySlipText');
+
+            if (type === 'makluman') {
+                para3.innerHTML = "3. Pihak sekolah memandang serius mengenai pelanggaran peraturan sekolah ini. Kami berharap tuan/puan dapat mengambil maklum akan perkara ini dan memberi kerjasama untuk menasihati anak jagaan tuan/puan agar tingkah laku ini tidak berulang pada masa hadapan.";
+                para4.innerHTML = "4. Sila lengkapkan dan kembalikan keratan maklum balas yang dilampirkan bersama surat ini kepada pihak sekolah dalam kadar segera.";
+                meetingTable.style.display = "none";
+                replySlipText.innerHTML = "Tindakan / Langkah pembetulan yang telah saya ambil ke atas anak jagaan saya adalah:";
+            } else {
+                para3.innerHTML = "3. Pihak sekolah memandang serius mengenai pelanggaran peraturan sekolah ini. Sehubungan dengan itu, tuan/puan dijemput hadir ke sekolah untuk berjumpa dengan Guru Penolong Kanan Hal Ehwal Murid bagi membincangkan perkara ini pada ketetapan berikut:";
+                para4.innerHTML = "4. Kehadiran tuan/puan amatlah diharapkan bagi mencari jalan penyelesaian terbaik demi masa depan anak jagaan tuan/puan. Sila lengkapkan keratan jawapan di bawah dan kembalikan kepada pihak sekolah.";
+                
+                meetingTable.style.display = "table";
+                document.getElementById('outMeetDate').innerText = meetDateVal ? formatDate(meetDateVal) : "[Tarikh Perjumpaan]";
+                document.getElementById('outMeetTime').innerText = meetTimeVal || "[Masa]";
+                document.getElementById('outMeetPlace').innerText = meetPlaceVal || "[Tempat]";
+
+                replySlipText.innerHTML = "Dengan ini saya mengesahkan bahawa saya <strong>AKAN HADIR / TIDAK DAPAT HADIR</strong> pada tarikh dan masa yang telah ditetapkan. (Sila potong yang tidak berkenaan). <br><br>Sebab/Catatan (jika tidak hadir):";
+            }
         }
     </script>
 </body>
