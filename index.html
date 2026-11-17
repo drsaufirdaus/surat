@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjana Surat Disiplin SK Cherating</title>
+<style>
+    :root{
+        --primary:#0b4f9c; --primary-dark:#083b75; --accent:#e8f1fb;
+        --danger:#c62828; --ok:#2e7d32; --warn:#b26a00;
+        --border:#d5dbe3; --muted:#6b7280; --bg:#eef1f6;
+    }
+    *{box-sizing:border-box}
+    body{font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);margin:0;padding:20px;color:#1f2937}
+    .app{display:flex;gap:20px;justify-content:center;align-items:flex-start}
+
+    /* ---------- PANEL KAWALAN ---------- */
+    .controls{width:380px;flex-shrink:0;background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.08);
+        position:sticky;top:20px;max-height:calc(100vh - 40px);display:flex;flex-direction:column;overflow:hidden}
+    .controls-head{background:linear-gradient(135deg,var(--primary),#1976d2);color:#fff;padding:16px 18px}
+    .controls-head h1{font-size:1.05rem;margin:0}
+    .controls-head p{font-size:.78rem;margin:4px 0 0;opacity:.9}
+    .progress{height:6px;background:rgba(255,255,255,.3);border-radius:3px;margin-top:10px;overflow:hidden}
+    .progress-bar{height:100%;width:0;background:#7CFC9A;transition:width .3s}
+    .progress-label{font-size:.72rem;margin-top:4px;opacity:.9}
+    .controls-body{overflow-y:auto;padding:12px 16px 16px}
+
+    details.section{border:1px solid var(--border);border-radius:8px;margin-bottom:10px;background:#fff}
+    details.section[open]{box-shadow:0 1px 4px rgba(0,0,0,.05)}
+    details.section summary{cursor:pointer;padding:10px 12px;font-weight:600;font-size:.9rem;list-style:none;
+        display:flex;align-items:center;gap:8px;user-select:none}
+    details.section summary::-webkit-details-marker{display:none}
+    details.section summary::after{content:"▸";margin-left:auto;transition:transform .2s;color:var(--muted)}
+    details.section[open] summary::after{transform:rotate(90deg)}
+    .step{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;
+        font-size:.75rem;align-items:center;justify-content:center;flex-shrink:0}
+    .section-body{padding:2px 12px 12px}
+
+    .form-group{margin-bottom:10px}
+    .form-group label{display:block;margin-bottom:4px;font-weight:600;font-size:.82rem}
+    .req{color:var(--danger)}
+    .hint{font-size:.72rem;color:var(--muted);margin-top:3px;display:block}
+    input,textarea,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.88rem;background:#fff}
+    input:focus,textarea:focus,select:focus{outline:2px solid #90caf9;border-color:var(--primary)}
+    textarea{resize:vertical;min-height:64px}
+    input[readonly]{background:#f1f3f5;color:#374151}
+    .row{display:flex;gap:8px}.row>*{flex:1}
+    .badge{font-size:.72rem;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:4px}
+    .badge.ok{background:#e8f5e9;color:var(--ok)}.badge.no{background:#fdecea;color:var(--danger)}
+
+    .type-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+    .type-card{border:2px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;font-size:.75rem;font-weight:600;background:#fff;transition:.15s}
+    .type-card .ico{font-size:1.3rem;display:block;margin-bottom:2px}
+    .type-card.active{border-color:var(--primary);background:var(--accent);color:var(--primary-dark)}
+
+    .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+    .chip{border:1px solid var(--border);background:#f8fafc;border-radius:14px;padding:4px 9px;font-size:.72rem;cursor:pointer}
+    .chip:hover{background:var(--accent);border-color:var(--primary)}
+
+    .check{display:flex;align-items:center;gap:8px;font-size:.82rem;margin-bottom:8px;font-weight:500}
+    .check input{width:auto}
+
+    .btn{width:100%;border:none;border-radius:6px;padding:10px;font-weight:600;cursor:pointer;font-size:.88rem;transition:.2s}
+    .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+    .btn-light{background:#f1f3f5;color:#374151;border:1px solid var(--border)}.btn-light:hover{background:#e5e7eb}
+    .btn-danger{background:#fdecea;color:var(--danger);border:1px solid #f5c2c0}.btn-danger:hover{background:#f9d6d3}
+    .btn-row{display:flex;gap:8px;margin-top:6px}.btn-row .btn{flex:1}
+    .actions{border-top:1px solid var(--border);padding:12px 16px;background:#fafbfc}
+    .actions .btn-primary{font-size:1rem;padding:12px}
+
+    .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1f2937;color:#fff;
+        padding:10px 18px;border-radius:8px;font-size:.85rem;opacity:0;transition:.3s;z-index:99}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ---------- KERTAS SURAT A4 ---------- */
+    .paper-wrap{display:flex;flex-direction:column;gap:20px}
+    .letter-page{width:210mm;min-height:297mm;padding:15mm 20mm;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.1);
+        font-family:"Times New Roman",Times,serif;font-size:11pt;line-height:1.45;position:relative;color:#000}
+
+    .letterhead{display:flex;align-items:center;gap:15px;border-bottom:3px double #000;padding-bottom:8px;margin-bottom:12px}
+    .logo-sekolah{width:72px;height:auto;display:block}
+    .school-name{font-size:14pt;font-weight:bold;margin:0 0 2px;text-transform:uppercase}
+    .unit-name,.address-text{font-size:10pt;margin:1px 0;font-family:Arial,sans-serif}
+    .unit-name{font-weight:bold}
+
+    .ref-block{display:flex;justify-content:flex-end;margin-bottom:10px}
+    .ref-block table{border-collapse:collapse}
+    .ref-block td{padding:0 4px;vertical-align:top}
+    .recipient{margin-bottom:10px}
+    .letter-body p{margin:0 0 9px;text-align:justify}
+    .subject{font-weight:bold;text-transform:uppercase;margin:10px 0 10px;display:block;text-decoration:underline}
+    .num{display:inline-block;width:22px}
+    .indent{padding-left:22px}
+
+    .detail-table{width:calc(100% - 22px);margin:4px 0 10px 22px;border-collapse:collapse;font-size:10.5pt}
+    .detail-table td{border:1px solid #000;padding:4px 7px;vertical-align:top}
+    .detail-table td:first-child{width:30%;font-weight:bold;background:#f3f3f3}
+
+    .meeting-table{margin:2px 0 10px 44px;border-collapse:collapse}
+    .meeting-table td{padding:2px 8px 2px 0;font-weight:bold;vertical-align:top}
+    .meeting-table td:first-child{width:80px}
+
+    .signature p{margin:0;line-height:1.35}
+    .sign-space{position:relative;height:60px;width:220px;margin:4px 0}
+    #sigCanvas{width:220px;height:60px;border:1px dashed #9aa5b1;border-radius:4px;cursor:crosshair;background:#fdfdfd;touch-action:none}
+    #sigImg{position:absolute;inset:0;width:220px;height:60px;object-fit:contain;display:none}
+    #sigHelp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8pt;color:#9aa5b1;pointer-events:none;text-align:center;font-family:Arial}
+    .cc{margin-top:14px;font-size:9.5pt}
+    .cc p{margin:0}
+
+    .slip{margin-top:12px}
+    .cut-line{display:flex;align-items:center;gap:8px;font-family:Arial;font-size:9pt;color:#444;margin:10px 0 12px}
+    .cut-line::before,.cut-line::after{content:"";flex:1;border-top:1.5px dashed #000}
+    .action-box{border:1.5px solid #000;padding:12px 16px;font-family:Arial,sans-serif;font-size:10pt}
+    .action-box h4{margin:0 0 8px;text-align:center;text-transform:uppercase;font-size:10.5pt;text-decoration:underline}
+    .action-box p{margin:0 0 7px;text-align:justify}
+    .dot-line{border-bottom:1px dotted #000;height:24px;margin-bottom:4px}
+    .slip-grid{width:100%;margin-top:14px;border-collapse:collapse}
+    .slip-grid td{padding:5px 0;vertical-align:bottom}
+    .box{display:inline-block;width:13px;height:13px;border:1px solid #000;vertical-align:-2px;margin-right:6px}
+    .placeholder{background:#fff3cd;color:#8a6d00;padding:0 3px;border-radius:2px}
+
+    @media (max-width:1100px){
+        .app{flex-direction:column;align-items:center}
+        .controls{position:static;width:100%;max-width:640px;max-height:none}
+        .paper-wrap{width:100%;overflow-x:auto;align-items:center}
+    }
+
+    @media print{
+        @page{size:A4;margin:0}
+        html,body{margin:0;padding:0;background:none}
+        .controls,.toast{display:none!important}
+        .app{display:block}
+        .paper-wrap{gap:0;display:block}
+        .letter-page{box-shadow:none;margin:0;padding:12mm 18mm;width:210mm;min-height:auto;page-break-after:always;break-after:page}
+        .letter-page:last-child{page-break-after:auto;break-after:auto}
+        .placeholder{background:none;color:#000}
+        #sigCanvas{border:none!important;background:transparent!important}
+        #sigHelp{display:none!important}
+    }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ================= PANEL KAWALAN ================= -->
+<aside class="controls">
+    <div class="controls-head">
+        <h1>📄 Penjana Surat Disiplin</h1>
+        <p>Unit Hal Ehwal Murid, SK Cherating</p>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="progress-label" id="progressLabel">0% lengkap</div>
+    </div>
+
+    <div class="controls-body">
+
+        <!-- 1. JENIS SURAT -->
+        <details class="section" open>
+            <summary><span class="step">1</span> Jenis Surat</summary>
+            <div class="section-body">
+                <div class="type-cards">
+                    <div class="type-card active" data-type="makluman"><span class="ico">📢</span>Makluman</div>
+                    <div class="type-card" data-type="panggilan"><span class="ico">🤝</span>Panggilan Penjaga</div>
+                    <div class="type-card" data-type="amaran"><span class="ico">⚠️</span>Surat Amaran</div>
+                </div>
+                <div class="form-group" id="warnLevelGroup" style="display:none;margin-top:10px">
+                    <label for="warnLevel">Peringkat Amaran</label>
+                    <select id="warnLevel">
+                        <option value="PERTAMA">Amaran Pertama</option>
+                        <option value="KEDUA">Amaran Kedua</option>
+                        <option value="TERAKHIR">Amaran Terakhir</option>
+                    </select>
+                </div>
+                <div class="row" style="margin-top:10px">
+                    <div class="form-group">
+                        <label for="refInput">No. Siri Rujukan</label>
+                        <input type="text" id="refInput" placeholder="Cth: 12">
+                    </div>
+                    <div class="form-group">
+                        <label for="dateInput">Tarikh Surat <span class="req">*</span></label>
+                        <input type="date" id="dateInput">
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <!-- 2. MURID & PENJAGA -->
+        <details class="section" open>
+            <summary><span class="step">2</span> Murid &amp; Penjaga</summary>
+            <div class="section-body">
+                <div class="form-group">
+                    <label for="classFilter">Tapis Ikut Kelas (pilihan)</label>
+                    <select id="classFilter"><option value="">— Semua kelas —</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="studentInput">Nama Murid <span class="req">*</span></label>
+                    <input type="text" id="studentInput" list="studentNames" placeholder="Taip sebahagian nama..." autocomplete="off">
+                    <datalist id="studentNames"></datalist>
+                    <span id="studentBadge"></span>
+                </div>
+                <div class="form-group">
+                    <label for="classInput">Kelas</label>
+                    <input type="text" id="classInput" placeholder="Diisi automatik" readonly>
+                    <span class="hint">Murid tiada dalam senarai? <a href="#" id="manualClassLink">Isi kelas secara manual</a></span>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="flex:0 0 105px">
+                        <label for="parentTitle">Gelaran</label>
+                        <select id="parentTitle">
+                            <option>Encik</option><option>Puan</option><option>Tuan</option><option>Cik</option><option value="">(Tiada)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="parentInput">Nama Ibu Bapa / Penjaga <span class="req">*</span></label>
+                        <input type="text" id="parentInput" placeholder="Cth: Ahmad bin Ali">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="addressInput">Alamat Penjaga (pilihan)</label>
+                    <textarea id="addressInput" placeholder="Cth: No. 12, Kampung Cherating Lama, 26080 Kuantan, Pahang" style="min-height:50px"></textarea>
+                </div>
+            </div>
+        </details>
+
+        <!-- 3. BUTIRAN KESALAHAN -->
+        <details class="section" open>
+            <summary><span class="step">3</span> Butiran Kesalahan</summary>
+            <div class="section-body">
+                <div class="form-group">
+                    <label>Pilihan Pantas Jenis Kesalahan</label>
+                    <div class="chips" id="offenceChips"></div>
+                </div>
+                <div class="form-group">
+                    <label for="offenceType">Jenis Kesalahan <span class="req">*</span></label>
+                    <input type="text" id="offenceType" placeholder="Cth: Ponteng sekolah">
+                </div>
+                <div class="form-group">
+                    <label for="issueInput">Butiran / Huraian Kejadian</label>
+                    <textarea id="issueInput" placeholder="Cth: Murid tidak hadir ke sekolah selama 3 hari berturut-turut tanpa sebarang makluman atau surat sebab."></textarea>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label for="incDate">Tarikh Kejadian</label>
+                        <input type="date" id="incDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="incTime">Masa</label>
+                        <input type="time" id="incTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="incPlace">Tempat Kejadian</label>
+                    <input type="text" id="incPlace" placeholder="Cth: Kantin sekolah">
+                </div>
+                <div class="form-group">
+                    <label for="schoolAction">Tindakan Yang Telah Diambil Oleh Sekolah (pilihan)</label>
+                    <textarea id="schoolAction" placeholder="Cth: Murid telah diberi kaunseling dan nasihat oleh Guru Bimbingan dan Kaunseling." style="min-height:50px"></textarea>
+                </div>
+            </div>
+        </details>
+
+        <!-- 4. PERJUMPAAN -->
+        <details class="section" id="meetSection" style="display:none" open>
+            <summary><span class="step">4</span> Butiran Perjumpaan</summary>
+            <div class="section-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="meetDateInput">Tarikh <span class="req">*</span></label>
+                        <input type="date" id="meetDateInput">
+                    </div>
+                    <div class="form-group">
+                        <label for="meetTimeInput">Masa <span class="req">*</span></label>
+                        <input type="time" id="meetTimeInput" value="09:00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="meetPlaceInput">Tempat</label>
+                    <input type="text" id="meetPlaceInput" value="Bilik Guru Penolong Kanan HEM, SK Cherating">
+                </div>
+                <div class="form-group">
+                    <label for="replyByInput">Tarikh Akhir Keratan Dikembalikan</label>
+                    <input type="date" id="replyByInput">
+                </div>
+            </div>
+        </details>
+
+        <!-- 5. TANDATANGAN -->
+        <details class="section">
+            <summary><span class="step" id="sigStep">4</span> Tandatangan</summary>
+            <div class="section-body">
+                <span class="hint" style="margin-bottom:8px">Lukis terus pada ruang tandatangan di dalam surat (tetikus / sentuhan), muat naik imej tandatangan, atau biarkan kosong untuk tandatangan manual.</span>
+                <div class="form-group">
+                    <label for="sigUpload">Muat Naik Imej Tandatangan (PNG/JPG)</label>
+                    <input type="file" id="sigUpload" accept="image/*">
+                </div>
+                <button type="button" class="btn btn-danger" id="clearSigBtn">🗑 Padam Tandatangan</button>
+            </div>
+        </details>
+
+        <!-- 6. TETAPAN -->
+        <details class="section">
+            <summary><span class="step" id="setStep">5</span> Tetapan Surat</summary>
+            <div class="section-body">
+                <div class="form-group">
+                    <label for="signerName">Nama Penandatangan</label>
+                    <input type="text" id="signerName" value="PUAN KHALIFAH BINTI KHALIB">
+                </div>
+                <div class="form-group">
+                    <label for="signerPost">Jawatan</label>
+                    <input type="text" id="signerPost" value="Guru Penolong Kanan Hal Ehwal Murid">
+                </div>
+                <div class="form-group">
+                    <label for="refPrefix">Format Rujukan</label>
+                    <input type="text" id="refPrefix" value="SKCRTG.700-7/1/1">
+                </div>
+                <div class="form-group">
+                    <label for="classTeacher">Nama Guru Kelas (untuk s.k.)</label>
+                    <input type="text" id="classTeacher" placeholder="Cth: Puan Aminah binti Yusof">
+                </div>
+                <label class="check"><input type="checkbox" id="showCC" checked> Papar senarai salinan kepada (s.k.)</label>
+                <label class="check"><input type="checkbox" id="slipSeparate" checked> Keratan maklum balas di halaman berasingan</label>
+                <label class="check"><input type="checkbox" id="showSlip" checked> Sertakan keratan maklum balas</label>
+                <div class="form-group">
+                    <label for="logoUpload">Tukar Logo Sekolah (pilihan)</label>
+                    <input type="file" id="logoUpload" accept="image/*">
+                    <span class="hint">Secara lalai menggunakan fail <b>logo_sekolah.png</b> dalam folder yang sama.</span>
+                </div>
+                <button type="button" class="btn btn-light" id="saveSettingsBtn">💾 Simpan Tetapan</button>
+            </div>
+        </details>
+    </div>
+
+    <div class="actions">
+        <button class="btn btn-primary" id="printBtn">🖨 Cetak / Simpan PDF</button>
+        <div class="btn-row">
+            <button class="btn btn-light" id="newBtn">➕ Surat Baharu</button>
+            <button class="btn btn-light" id="sampleBtn">✨ Contoh</button>
+        </div>
+    </div>
+</aside>
+
+<!-- ================= SURAT ================= -->
+<main class="paper-wrap">
+    <section class="letter-page" id="page1">
+        <div class="letterhead">
+            <img src="logo_sekolah.png" alt="Logo SK Cherating" class="logo-sekolah" id="logoImg" onerror="this.style.display='none'">
+            <div>
+                <p class="school-name">Sekolah Kebangsaan Cherating</p>
+                <p class="unit-name">Unit Hal Ehwal Murid (Disiplin)</p>
+                <p class="address-text">26080 Kuantan, Pahang Darul Makmur</p>
+            </div>
+        </div>
+
+        <div class="letter-body">
+            <div class="ref-block">
+                <table>
+                    <tr><td>Ruj. Kami</td><td>:</td><td><span class="outRefFull"></span></td></tr>
+                    <tr><td>Tarikh</td><td>:</td><td><span id="outDate"></span></td></tr>
+                </table>
+            </div>
+
+            <div class="recipient">
+                <strong id="outParent"></strong><br>
+                <span id="outAddress"></span>
+                Ibu Bapa / Penjaga kepada:<br>
+                <strong id="outStudent"></strong> (<span id="outClass"></span>)
+            </div>
+
+            <p>Tuan/Puan,</p>
+            <span class="subject" id="outSubject"></span>
+            <div id="outBody"></div>
+
+            <p style="margin-top:12px">Sekian, terima kasih.</p>
+            <p><strong>"MALAYSIA MADANI"</strong><br><strong>"BERKHIDMAT UNTUK NEGARA"</strong></p>
+
+            <div class="signature">
+                <p>Saya yang menjalankan amanah,</p>
+                <div class="sign-space">
+                    <canvas id="sigCanvas"></canvas>
+                    <img id="sigImg" alt="">
+                    <div id="sigHelp">Tandatangan di sini<br>(Tetikus / Sentuhan)</div>
+                </div>
+                <p><strong id="outSigner"></strong><br>
+                   <span id="outSignerPost"></span><br>
+                   Sekolah Kebangsaan Cherating</p>
+            </div>
+
+            <div class="cc" id="ccBlock">
+                <p><strong>s.k.</strong></p>
+                <p class="indent">1. Guru Besar, SK Cherating</p>
+                <p class="indent" id="ccTeacher">2. Guru Kelas</p>
+                <p class="indent" id="ccFile">3. Fail Disiplin Murid</p>
+            </div>
+        </div>
+
+        <div class="slip" id="slipInline"></div>
+    </section>
+
+    <section class="letter-page" id="page2">
+        <div class="slip" id="slipSeparateHost"></div>
+    </section>
+</main>
+</div>
+
+<!-- Templat keratan -->
+<template id="slipTemplate">
+    <div class="cut-line">✂ KERATAN — POTONG DI SINI ✂</div>
+    <div class="action-box">
+        <div style="text-align:right;font-size:9pt;margin-bottom:4px">Ruj. Surat: <span class="outRefFull"></span></div>
+        <h4>Keratan Maklum Balas Ibu Bapa / Penjaga</h4>
+        <p>Kepada: <b>Guru Penolong Kanan Hal Ehwal Murid, SK Cherating</b></p>
+        <p>Saya, ibu bapa / penjaga kepada <b class="sStudent"></b> dari kelas <b class="sClass"></b>, mengaku telah menerima dan memahami surat <b class="sType"></b> bertarikh <b class="sDate"></b> berhubung salah laku <b class="sOffence"></b>.</p>
+        <div class="sBody"></div>
+        <table class="slip-grid">
+            <tr>
+                <td style="width:58%">Tandatangan : .............................................</td>
+                <td>Tarikh : ......................................</td>
+            </tr>
+            <tr>
+                <td>Nama Penjaga : ..........................................</td>
+                <td>No. Telefon : ................................</td>
+            </tr>
+            <tr>
+                <td colspan="2">No. K/P : ..................................................</td>
+            </tr>
+        </table>
+        <p class="sReturn" style="margin-top:10px;font-size:9pt;font-style:italic"></p>
+    </div>
+</template>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= BAHAGIAN 1: PANGKALAN DATA MURID & KELAS ================= */
+        const classData = {
+            "1 Al-Biruni": ["ABDUL RAYYAN MIKAIL BIN ABDUL RASHID", "AHMAD DANISH AQEEL BIN AHMAD BARDAIN", "KHALISH NAUFAL BIN KHAIRUL ARMAN", "MOHAMAD AMMAR IRFAN BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZULFAN NAIM KHALISH BIN MOHD ZULKARNAIN", "MUHAMAD AFEEF ILYAS BIN MUHAMAD GHADAFFI", "MUHAMAD NAQIB RASYDAN BIN MOHAMAD RASYID", "MUHAMMAD ADYAN NAUFAL BIN ABDUL HANIF", "MUHAMMAD AISY FIRDAUS BIN MUHAMAAD FITRI", "MUHAMMAD DAYYAN ZAFFRAN BIN ABDULLAH", "MUHAMMAD FIRAS RIZQI BIN MUHD FADZLI", "MUHAMMAD IRFAN NAUFAL BIN MUHAMMAD ILYAS", "MUHAMMAD NUH RIFQI BIN AHMAD BAZLI", "MUHAMMAD RIZWAN HAQIMIE BIN ABDUL MUZIL", "MUHAMMAD UMAR AL-KHATTAB BIN MUHAMMAD FIRDAUS", "MUHAMMAD UMAR SHARIF BIN ZUL", "WAN MUHAMMAD AMZAR BIN WAN AZMAN", "ALYA ADRIANA BINTI MOHD RIZUAN", "HANA MEDINA BINTI MOHD. AIMAN NURHAKIM", "KYAYRA NADEERA HAURA BINTI MOHAMAD KHAIRUL NIZAM", "NAURA AISYAH BINTI MOHD ASRI", "NOR AIRA JANNAH BINTI MOHD ASNAWI", "NUR AAIRA QAISARA BINTI MOHD RIZAL", "NUR AIRA AMANI BINTI ALIAS", "NUR ASSYIFA HANEEM BINTI MOHD IKBAL HAKIM", "NUR AYRA AISYAH BINTI MOHD KHAIRI", "NUR FATHIA NAYLA BINTI MUHAMMAD YUSRI", "NUR HUMAIRA BINTI MUHD LUQMAN", "NUR JASMINE HANA MEDINA BINTI HIZWAN FAZRI", "NUR QALESYA BINTI YUSOF", "NUR SOFEA MEDINA BINTI MOHD SYUFIAN", "NURDIYANA AWFIYAH BINTI ZULKIFLI", "PUTERI EILYANA BINTI MUHAMMAD SHAFID", "ROS AMIRA SAFIYA BINTI ABDULLAH", "SITI SABARISHA BINTI MOHD SALEH", "SITI NORAAFIYAH INSYIRAH BT ABU HASSAN"],
+            "1 Al-Farabi": ["ADAM DANIEL BIN MOHD SUKRI", "DANIAL NUQMAN BIN ABDUL HANIF SAFWAN", "MOHAMAD MIQAEL BIN MOHAMAD FAIZIE", "MOHAMAD ZULFAQAR BIN MOHAMAD NAKIAH L", "MUHAMAD ANAS MIKAIL BIN MUHAMAD NASSRUDIN", "MUHAMMAD ADAM BIN ABDUL RAUFF", "MUHAMMAD ALIFF NAUFAL BIN ZULNIZAN", "MUHAMMAD AQIB BIN MOHD ZAMZIRO", "MUHAMMAD ELMAN AUS BIN MOHD ADILA", "MUHAMMAD IMAN NAUFAL BIN ABDUL FATTAH", "MUHAMMAD IZZ AYAAZ BIN MOHD NAZARUDI", "MUHAMMAD SYAKIR NASRAN BIN MUHAMAD SHAZUAN", "NOAH MIQAEL BIN MOHAMMAD KHAIRIL MUZAFFAR", "NOR AISY ZUFAR BIN NOR ZULHAIRIE", "NUR MUHAMMAD AAFI MUSLIM BIN ARIF FADILLAH", "WAN MUHAMMAD HARITH BIN WAN MOHD FAHMI NASRI", "ZAYYAN AAKIF BIN MOHAMAD ZULAZLAN", "ADRIANA AMANDA A/P JEFFRY", "ATHIA ZARA BINTI MOHD ZAKI", "HAURA HASNA BINTI MOHD SHASRUL HASRA", "MARYAM FATHIYYAH BINTI ABD ZUKHRUFUDDIN", "NIA QALESYA BINTI MOHAMAD AZWAN IFRAM", "NOOR SYAFILA NATASYA BINTI ABD MALIK", "NUR AFEEYA FAQIHAH BINTI MOHAMAD FARID", "NUR AIREEN MEDINA BINTI AHMAD AIZAT", "NUR ATIYA AILEEN BINTI MOHD SOBRE", "NUR AZZAHRA SAFIYYAH BINTI MOHD SIDEK", "NUR FATIHAH AMALIA BINTI MOHD ROSNI", "NUR HUMAIRA BINTI ABDUL MUEIZ", "NUR QISYA ZAHRA BINTI ROIS", "NUR SYAHIRAH SOLEHAH BINTI BADRUL HISYAM", "NURIN AMNA HUWAIDA BINTI MOHD ROKMAN", "QHADEEJA AINNUR MEDINA BINTI ANWAR SHAFIQ", "SITI AFIA MIKAYLA BINTI SH.FIZULREZUAN", "TENGKU TEH ANNISAA BINTI TENGKU MOHD IKMAN HANIFF", "WAN AISYAH NABILAH BINTI WAN MOHAMAD HAFIQ", "WAN IMAN SAFA BINTI WAN MOHAMMAD SHUKRI"],
+            "1 Al-Kindi": ["ADAM MUQRI BIN MOHD ZAIMI", "AHMAD NAUFAL BIN AHMAD NASRI", "AR RAYYAN MAULANA BIN ABDUL SALAM", "MOHAMAD PUTERA RAMADHAN BIN ASRAH @ SHAFIE", "MOHAMMAD HAFIZOL BIN MOHD SHAIFUDDIN", "MUHAMAD ANAS MIKHAIL BIN ABDULLAH", "MUHAMMAD ADAM FARIS BIN MUHAMMAD JEFRI", "MUHAMMAD AIDAN KHALISH BIN MOHD WAN ABDUL WAHAB", "MUHAMMAD ALIF AIDAN BIN MPHD AIMAN", "MUHAMMAD AZRAIKAL BIN MOHD AFFENDI", "MUHAMMAD FARHAN DANISH BIN MOHD FAIRUZ", "MUHAMMAD HAYYAN BIN MOHD HIDAYATULLAH", "MUHAMMAD KHAZEEN BIN MUHAMMAD FADHIL", "MUHAMMAD RIDHWAN BIN MOHD ASRI", "MUHAMMAD SYAZWAN HAIKAL BIN YAHYA", "NASHRULLAH WAFI BIN MOHD KHAIRULDDIN", "NIK MUHAMMAD AMJAD BIN NIK MOHD ARIF", "YURI BIN MOHD YUNUS", "AMIRA SYAFIRA BINTI UMAR", "CHE UMMIE SAIDATUL AMINAH BINTI CHE ANUAR", "DEANDRA NUR AMMARA BINTI DANISH BAARATHMOGAN", "INARA NUR AYESHA BINTI CHE MOHD FISWAN", "MARYAM NUR MEDINA BINTI ABU BAKAR", "NOOR IZZARA IMELDA BINTI MOHD SAFWAN SARIY", "NOR HANA SOFEA BINTI FADZLI SHAH", "NUR AFEEYA HUMAIRA BINTI MUHAMMAD ABRAR", "NUR ALYA FARISHA BINTI MOHD FAIZ", "NUR ATIYA HUMAIRA BINTI MAT YASIN", "NUR DAYANA HAZWANI BINTI MOHD SHADAT", "NUR HANA WARDINA BINTI MOHD KHAIRUL MUZZAMIR", "NUR NADIA BINTI YAAKUB", "NUR NAYLA QAISARA BINTI MOHD HAFIZ", "NUR RAYSHA RANIA BINTI MOHD QATAMAN", "NUR WIDAD SAFIYA BINTI KHAIRUL IZAT", "NURUL RAISHA RABIATUL ADAWIYAH BINTI KHOSIM", "RAJA NOR AMANDA AQILAH BINTI RAJA MOHAMAD AZLAN", "SITI NORAIN ASYIQIN BINTI ABDUL HAFIZ", "NUR INARA HUSNA BINTI MOHD FIRDAUS"],
+            "1 Al-Razi": ["AMAR AUS BIN MOHD EMMAR ZAMSHAH", "CHE WAN AHMAD AYDAN ZHARIF BIN CHE WAN MOHD FIRDAUS", "MOHAMAD ZULFAHMI BIN MOHAMAD ZULFADELI", "MOHAMMAD IAN RIZQI BIN MOHAMAD IMAN FAIZ", "MUHAMAD ANIQ RAFIQI BIN MUHAMAD RAHMAN", "MUHAMMAD ADAM FIRAS BIN SAMSUDIN", "MUHAMMAD AFIQ DHANNI BIN ABDUL AZHIM", "MUHAMMAD AZZAM SYAREEF BIN MOHAMAD ASYRAF", "MUHAMMAD FATEH HILMAN BIN MOHD ARIS", "MUHAMMAD HANIF MIKAIL BIN MUHAMAD HAKIMI", "MUHAMMAD ILHAN EQBAL BIN AHMAD", "MUHAMMAD LUTH RIZQI BIN AHMAD BAZLI", "MUHAMMAD RIFFQIE ARFAN BIN MOHD KHAIRUL IEZWAN", "MUHAMMAD SYAQIF AMMAR BIN SAIMI", "MUHAMMAD UMAR BIN MOHD ADIB", "MUHAMMAD ZARIF AZIZ BIN MOHD ZAMRI", "WAN MUHAMMAD AMMAR IRFAN BIN WAN MOHD ARIF AMIRUDDIN", "WA'QEEL ALTHAF BIN MOHAMAD EFFENDI", "AISYA AFIA BINTI MUHAMMAD AMIR", "ARWA ALESYA NURZAHRA BINTI MOHD KHAIRI AZLI", "DHIA AULIYA BINTI MUHAMAD TAQIYUDDIN", "MARYAM SYAFIRA BINTI MOHAMAD KHAIRUL HAFIZ", "NIK NUR HUSNA BINTI MUHAMAD SHAHARUDDIN", "NOR ZAHIRA AQILAH BINTI ZULKIFLI", "NUR AFRINA RAISYA BINTI OTHMAN", "NUR ASSYIFA HANAN BINTI MOHD IKBAL HAKIM", "NUR AULIYA HAURA BINTI AZLAN", "NUR DHAFWATUL AISY HAYANI BINTI ROAZAMI", "NUR HAURA' HUMAIRAA BINTI MOHD FADZIRUL EAFFENDY", "NUR INARA HANA BINTI MOHD FIRDAUS", "NUR IZARA RAISHA BINTI MOHD NIZAM FAZRUL", "NUR NAIRA AQILA BINTI MUHAMMAD KHAIRUL NIZAM", "NUR SARA MIKAYLA BINTI MUHAMMAD IKHTIYARUDDIN BAKHTIAR", "NUR ZAHRA SOFFIA BINTI AZHAR", "PUTERI ANGGUN ZENIA BINTI ZULHELMI", "SHAHEEN IMANI BINTI MD YASROL", "SITI RAWDHA ALFIA BINTI MOHD YUSDY BULHAQS", "TUAN AYRA MIKAYLA BINTI TUAN SHAMSUDIN"],
+            "2 Al-Biruni": ["ARIIQ MIKAIL BIN MOHD HERISAH", "KU MUHAMMAD ADAM RAYYAN BIN KU MOHD SAFUAN", "MOHAMAD IMAN NAWFAL BIN SAYUTI", "MOHAMAD RAYYAN HAIKAL BIN MOHAMAD SYARAFUDDIN", "MOHAMAD ZAFRIEL MIKHAIL BIN NOR AZLAN", "MUHAMMAD ABDULLAH FAQIH BIN MOHD JUNAR AMAL", "MUHAMMAD ADDAS BIN YUSAIDY", "MUHAMMAD AMMAR ASYRAF BIN MOHAMAD TERMIZI", "MUHAMMAD AQEEF FIRASH BIN MOHAMAD FIRDAUS", "MUHAMMAD AQIF UZAIR BIN MOHD AFZANIZAM", "MUHAMMAD AQIL RAYYAN BIN AZFARIZAL SHAZWAN", "MUHAMMAD FARIS IQBAL BIN MOHD SAUPI", "MUHAMMAD HANAFI ZAFRAN BIN MOHD RIDZUAN", "MUHAMMAD MUAZ BIN MUHAMMAD MUHSIN", "PUTRA ANAQI MIKHAIL BIN MOHD FIRDAOUS", "QIWAMUDDIN BASHAR BIN AZMUDDIN", "RAIHAN ANAQI BIN ABDUL HAQQ", "WAN MUHAMMAD ARFAAN BIN WAN AFZAN", "HANNAH HASEENA BINTI HASWAWI", "NUR AAFIYAH BINTI MUHAMMAD NASRI", "NUR AAIRA ZINNIRAH BINTI MOHD SYAHRIZAI", "NUR AIN ADILA FATIHAH BINTI MAT ROSDI", "NUR AIRA MIKAYLA BINTI MOHD RAZALI", "NUR FALISHA BINTI MOHD FIRDAUS", "NUR IMANINA DARLEENA BINTI MOHAMED ZUHIR", "NUR SHADRINA FATHIA BINTI SHAMSURI", "NURIN AINUL MARDHIAH BINTI AKASHAH", "RAISYAA RANNIA BINTI MOHD SAIFUL NIZAM", "SITI NUR AFIA IMANI BINTI ASMAWI", "SYIFAA AZZAHRA BINTI ABDUL SYIHABUDDIN", "TUAN NUR AMNA QAILLA BINTI TUAN ROSLEE", "ULAYYA SAFIYYA BINTI ABDULLAH", "ZYRA NOUREEN BINTI MOHD. RAFIQ IZZAT", "ADARA SAFWAH BINTI MOHD SOLEHUDDIN"],
+            "2 Al-Farabi": ["ABDULLAH AMMAR BIN AHMAD KAMIL HAFIZ", "AHMAD UMAR QURAISY BIN AHMAD FIRDAUS", "HABIB HASSAN BIN KARIM", "MUHAMMAD AIDAN HAIKAL BIN MOHD IDHAM", "MUHAMMAD AL FATIH BIN MOHD ARIFIN", "MUHAMMAD AMSYAR RAFIQIN BIN MOHD RAZREEN", "MUHAMMAD IFFAT RAFIUDDIN BIN AZMI", "MUHAMMAD ILHAM BIN MOHD TOHIR", "MUHAMMAD NAUFAL BIN AGUNG SUPRIYANTO", "MUHAMMAD NURKHALAF FAHMI BIN MOHD SHAZALEE", "MUHAMMAD RAZZAN IZZRAF BIN MOHD JALANI", "MUHAMMAD ZAFRAN RAZI BIN MOHD HANIFF", "TUAN HARRAZ ANAQI BIN TUAN AHMAD HAFISZA", "UMAR ARRAYYAN BIN MUHAMMAD ZULFAHMY", "WAN MUHAMAD ZULFAHMI BIN WAN HAZLAN", "WAN MUHAMMAD HASIFF BIN WAN MOHD FAHMI NASRI", "ANGGUN MIQAELA BINTI MOHAMMAD KHAIRIL MUZAFFAR", "ANIS RAISYA ADRIANA BINTI AZMIL", "NIK AISYA BINTI NIK MOHD HANAFIAH", "NOR ZULAIKHA HUMAIRA BINTI MOHAMAD ZULKIFLI", "NUR AINAN SOFIA BINTI MOHD ZAHID", "NUR IMANI HAFIYA BINTI ABD HAFIZUDDIN", "NUR JAUZA AL-ZAHHRA BINTI ZUWAIRI", "NUR KHAYRA MIKAYLA BINTI MUHAMAD FAIZOL", "NUR QALESYA HUMAIRA BINTI MOHD HAFIZHU QAYYUM", "NUR WARDAH SYAQILAH BINTI MOHD ZULKIFLI", "QISYA NUR KHAIREENA BINTI MOHD HAMRY", "RAANIYA A'LANI BINTI MOHD RASHID", "SITI FARAH HUMAIMA BINTI ABDUL QAYYUM", "SITI HAJAR MARDHIAH BINTI ARIWAN", "SITI NUR AIN IZARA BINTI MOHAMAD SAIFUL BAHARI", "WAFA SYAKIRAH BINTI NOR AZLAN", "AHMAD SHAHRUL SHAFIEE BIN AHMAD SUHAIMEE", "MUHAMMAD HAIKAL BIN MOHD HELMI"],
+            "2 Al-Kindi": ["AHMAD DANISH RAYYAN BIN ABDUL KARIM", "AHMAD FAHIM BIN ABDUL MUHAIMIN", "AHMAD RAYYAN ISKANDAR BIN AHMAD MUHAIMIN", "CHE ENGKU IRSYAD RAFIQIE BIN CHE ENGKU INDRA", "IFFAT ZIYAD BIN ISKANDAR", "MOHAMMAD HARRAZ DZIKRI BIN MOHD HISHAM", "MUHAMAD KHALISH ILHAM BIN ABDUL RAZAK", "MUHAMMAD AALI MIKAIL BIN SOBRYALAISA", "MUHAMMAD ADLI SAEF BIN JAMELLUDIN", "MUHAMMAD ADYAN RIZQI BIN RUZLAN", "MUHAMMAD AFNAN NAUFAL BIN ABDUL AZIZ", "MUHAMMAD AMEER RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD ANIQ AMSYAR BIN MOHD TAMIZI", "MUHAMMAD DAIYAN RIZQIN BIN HAZIROL NIZAM", "MUHAMMAD ISYRAQ MUSAYYAD BIN MOHD HARIS", "MUHAMMAD RAYYAN ANAQI BIN MOHD FAIZAK", "SYED NUH KHAIRIL HAKIMI BIN ABDULLAH", "AINUL MIKAYLA IMANI BINTI ZAMRI", "AMNI MALIKA BINTI MOHD KAMARULZAMAN", "ASMA' BINTI MAMDUH", "NOOR JANNAH SOFIA BINTI MOHD SAFWAN SARIY", "NUFA AZZAHRA BINTI AZUAN", "NUR AISYAH ALEESA BINTI JEMMI", "NUR ALISHA SOFEA BINTI MOHD HASRUZI", "NUR AMNI HUMAIRA BINTI MOHD HAIMI", "NUR MARDHIYAH BINTI MOHAMAD ZULFADELI", "NUR MEDINA BINTI MOHD ROSLAN", "NUR WARDAH SAFIYYA BINTI MOHD ZULKIFLI", "NURUL QISTINA DAHLIA BINTI SIDI AHMAD", "RAISHA AQILAH BINTI MOHD FAIZZUL"],
+            "2 Al-Razi": ["AFEEF HARIS BIN ANUAR", "FAID ZIYAD BIN MOHD FAIZZUL", "MUHAMAD HARRAZ HAZIQ BIN MOHD REZALI", "MUHAMMAD ADAM FAREEZ BIN MOHD FAIZ", "MUHAMMAD ADAM RAYYAN BIN FAHMI", "MUHAMMAD AHNAF HAYQAL BIN MOHD AZIZUL", "MUHAMMAD AL HAZAMI ASFRAF BIN ABDUL RAHMAN", "MUHAMMAD AMMAR ASYRAF", "MUHAMMAD ANAS ZIYAD BIN SAMZULI", "MUHAMMAD FARISH MIKHAEL BIN MOHAMED ALAM AKBAR", "MUHAMMAD FIRDAUS HAZIQ BIN MUHAMMAD HAFIZI", "MUHAMMAD HAZIQ RIZQI BIN MOHAMAD ZAINI", "MUHAMMAD IMAN SYAKIR BIN MOHAMAD HANAFI", "MUHAMMAD QARIZH BIN MUHAMMAD HAFSHAM", "PUTERA AZAFFRIEL RAMADHAN BIN MOHD AMIRUL ANHAR", "PUTRA KHALISH HAQ BIN ANUAR", "AAFIA BINTI MUHAMAD HANIF", "CHE NUR SYIFFA HANANIA BINTI CHE MOHD NOOR SUBHIE", "MARYAM SOLEHAH BINTI ZABRI", "NUR AFIA IRDINA BINTI MOHD ZULKIFLI", "NUR AILEEN MAISARAH BINTI MUHAMAD SULAIMAN", "NUR DHIA ARISSA BINTI MUHAMAD HARIS", "NUR DINA AULIYA BINTI MOHD ZAMHAM", "NUR FARAH AISYA BINTI KOLEK @ AZRUL", "NUR HANAN KHAIRA BINTI MOHD SHUKRI", "NUR HUSNINA ADWA BINTI HALIMI", "NUR INARA HANA BINTI MOHD YAAKOB", "NUR JAMRAH HAURA BINTI HIZWAN FAZRI", "NUR NAINA NADEERA BINTI MOHD SOBRE", "NUR QASEH QAISARA BINTI ABD RAZAK", "NURUL HIDAYAH AQILAH BINTI AZMAN", "UMMI SAFIYYA BINTI MOHAMAD BORHANUDIN"],
+            "3 Al-Biruni": ["FAYYAD IFFAT BIN FAIYRUL", "MUHAMAD IMAN AISY BIN AFTAR", "MUHAMMAD AIDIL MIKHAIL BIN MOHD SUKRI", "MUHAMMAD AMMAR DANIYAL BIN MOHD JAAFAR", "MUHAMMAD AQIFF BIN MUHAMMAD RIDHUAN", "MUHAMMAD FARIS ADRIAN BIN MUHAMMAD ADAM", "MUHAMMAD HAALIQ UZAIR BIN MOHD FAIZAL", "MUHAMMAD HADI IRSYAD BIN ASMADI", "MUHAMMAD HADIEF BIN MUHAMMAD NUZAINI", "MUHAMMAD MUAZ BIN MOHD ZULKAFLI", "MUHAMMAD NASRUL HAQ BIN MOHD KAMAL", "MUHAMMAD UWAIIS RIEZKI BIN MOHD SHAHIRAN ANUAR", "MUHAMMAD UWAIS AL QARNI BIN MOHD RAMDHAN", "MUHAMMAD ZULHAIRY BIN MOHD ZAMRI", "RAJA AFEEF AISY RIZQI BIN RAJA AZMAN", "RAZIF ARSYAD FITTRI BIN ROSLI", "AINUR ASHSYIFFA RANIA BINTI MOHD ASHROFF", "ALISHA SOFIA BINTI MOHD IZWAN HANIF", "DHIA MEDINA BINTI MOHAMAD AZWAN IFRAM", "INAS INARA AULIYA BINTI MOHD KHAIRUL IEZWAN", "NIK HUMAIRAA' IRDHINA BINTI NIK MOHD HAFIS", "NUR AIDA SAFFIYAH BINTI MUSA", "NUR AINA SOFIA BINTI NOR HISHAM", "NUR ANIS SHAZWANI BINTI ABDULLAH", "NUR DHIA UFAIRAH BINTI ABDUL RAZAK", "NUR ERRIERA FARHANA BINTI AZHAR", "NUR JANNAH BASIRUN BINTI MOHD AZRUL", "NUR NISRINA ADILA BINTI ARIF FADILLAH", "NUR SOFEA AULIA BINTI MOHD ZAMRI", "NUR WAFA SOLEHAH BINTI MOHAMAD ALY", "NURUL ADIRA DELISYA BINTI SUFIAN", "NURUL AQILA ZASKIA BINTI MOHD NAZROL", "NURUL DELISHA WARDANI BINTI ZUL HAKIM", "NURUL JANNAH BINTI MUHAMAAD FITRI", "NURUL NAJIHATUL SYUHADA BINTI KHOSIM", "NUUR IQKLIMAA BINTI MUHAMMAD", "SITI DAISHA RAIHANAH BINTI HAZIROL NIZAM", "MUHAMMAD EZZ AYDEEN ZHAFRAN BIN MOHD DASUKI"],
+            "3 Al-Farabi": ["ABU HAZIQ HUZAIFAH BIN ABU HURAIRAH", "AISH HAFIY BIN MOHD SHASRUL HASRA", "DARWISY AARYAN BIN DANISH BAARATHMOGAN", "MOHAMAD PUTERA UMAR FARHAN BIN ASRAH @ SHAFIE", "MUHAMAD AFIQ RIDWAN BIN MUHAMAD RAHMAN", "MUHAMMAD DAYYAN DARWISH BIN MOHD NORHAPIZA", "MUHAMMAD HAFIZ IRFAN BIN MUHAMMAD RIDZAN", "MUHAMMAD HARIZ BIN MOHD HIDAYATULLAH", "MUHAMMAD IMAN DHANI BIN KHAIRUL ANWAR", "MUHAMMAD QARIZH FAYYADH BIN MOHD IZHAM", "MUHAMMAD RIFQIE THAQIFUDIN BIN SAMSUDIN", "MUHAMMAD SUFIY IZZHAN BIN MOHAMED ISMAIL", "MUHAMMAD SYARIEZ FAYYADH BIN SHAMSURI", "WAEL ANAQI BIN MOHAMAD EFFENDI", "WAN MUHAMMAD AMSYAR BIN WAN MOHD HAFIZUDDIN", "AILEEN ALIESYA BINTI MUHD AZRIE SYAZALI", "AIRA NADIYAH BINTI MOHD FUZAIMI", "CHE ENGKU NUR QASRINA DAMIA BINTI CHE ENGKU ISKANDAR", "NIK NUR ARIANA SAFIYA BINTI NIK MOHD ARIF", "NUR AAIRA ALISHA BINTI AMIRUL ASYRAF", "NUR AAIRA JAZMIN BINTI JAAFAR", "NUR ALIYA SHAHEERA BINTI ABD.AZIZ", "NUR AUFA BINTI AHMAD AZIZI", "NUR AUNI MIRZA BINTI MAZMIZAN", "NUR DHIYA RAIHANAH BINTI ROSLI", "NUR FATHIYYA AMANI BINTI MUHAMMAD SHAIFUL AMIERUL", "NUR RAISYA IMANI BT M.FAREZ IZWAN", "NUR SYIFA ANNISA BINTI MUHAMMAD ILYAS", "NUR SYIFA AQILAH BINTI MOHAMAD SHAHRUL EFFIZAN", "NURIN ALYA BINTI ZAMRI", "SITI MARYAM BINTI MOHD ASRI", "SITI NORAISYAH SYAFIA BINTI ABDUL HAFIZ", "SITI NUR ARIESHAA BINTI ROSLAN", "TENGKU AILEEN HAYANI BINTI TENGKU NURUL FAKRI", "UMI NUR ARQIELLA UMAIRAH BINTI ABDULLAH", "WAN NUR MARIAM ADRA BINTI WAN MUSTAFA"],
+            "3 Al-Kindi": ["AHMAD MUAYYAD BIN MANSOR MAJDI", "AHMAD NAQUIB BIN MUHAMMAD NAJID", "MUHAMAD AISY FAYYADH BIN MUHAMAD HAFIZI", "MUHAMAD EIJAZ ZIQRI NAZARIN BIN ABDUL KARIM", "MUHAMMAD AFIY FAKRI BIN ZUKRI", "MUHAMMAD AZFAR DANISH BIN MOHD AZLAN", "MUHAMMAD KHALEED BIN MUHAMMAD FADHIL", "MUHAMMAD NAUFAL IMAN BIN ABU TALIB", "MUHAMMAD RAYYAN FIRDAUS BIN ABDULLAH", "MUHAMMAD SYARIF ADAM BIN SAIMI", "MUHAMMAD WAFIY BIN KHAIRUL IZAT", "MUHAMMAD ZAQWAN ZAHIRULLAH BIN ABDUL ZAHIR", "MUHAMMAD ZAYYAN BIN MOHD SHAFIK", "QARIZH HILMI BIN SHARI HAMDAN", "TENGKU MUHAMMAD ADAM DANIAL AMSYAR BIN TENGKU AZLAN", "WAN MUHAMMAD ARMAN BIN WAN AZMAN", "ZUL EZHAM RAMDHAN BIN ZULHAIZAL", "HANNAH SOFIYYAH BINTI MOHAMMAD AFIQ", "NIK NUR ADIRA IZZATI BINTI KAMARUL AZUAN", "NOOR SYAFIRA BINTI ABD MALIK", "NUR AFEEYA ALEESYA BINTI NOR FADZROL", "NUR AINA BATRISYIA BINTI ABDULLAH", "NUR AIRA AQILAH BINTI ROIS", "NUR AUNI DAHLIA BINTI MOHD SYAIFFULDIN", "NUR FAHIMA ALIFA BINTI ABDUL MUHAIMIN", "NUR ZAHRA QAISARA BINTI AHMAD ZAKI", "NURIN ALYA HUMAIRA BINTI MOHD ROKMAN", "NURUL AMEENA RAUDHAH BINTI SIDI AHMAD", "NURUL IZYAN SOLEHAH BINTI MUHAMAD ABDUL HADI", "PUTERI NUR ATHYRAH AUNI BINTI MOHD ZULKARNAIN IMRAN", "PUTERI NUR HUSNA IZZARA BINTI HABIBUL INSAN", "PUTRI NUR ARRIANA DAMIA BINTI AMRAN", "PUTRI NUR BALQIS RAISHA BINTI AZNAN", "PUTRI SAYYIDA AL HURRA BINTI MOHD SHAHARUDDIN", "QHADEEJA AINNUR SAFIYA BINTI ANWAR SHAFIQ", "WAN NUR HUMAIRAH BINTI WAN MOHD ARIF AMIRUDDIN", "NUR HANAN INSYIRAH BINTI ABDUL MUEIZ"],
+            "3 Al-Razi": ["AMSYAR RAFIQI BIN ZAHARI", "MUHAMMAD ADAM MIKAIL BIN MOHD FIRDAUS", "MUHAMMAD ADHAM BIN MOHD SHAHRUL BAHARI", "MUHAMMAD AISY RAYYAN BIN MOHD RIDZUAN", "MUHAMMAD AMSYAR RAID BIN MOHAMMAD REDZUAN", "MUHAMMAD BIN HO SEN", "MUHAMMAD EL ARYYAN BIN MUHAMMAD AZMAN", "MUHAMMAD ELYAS WAFIY BIN MOHD ADILA", "MUHAMMAD HABIB AMSYAR BIN HAFIZUL AHMA", "MUHAMMAD IKHMAL HAZIQ BIN MOHD IRWAN HAZUAN", "MUHAMMAD IRFAN BIN ABDULLAH", "MUHAMMAD NAUFAL BIN MOHD KHAIRUL NIZAM", "MUHAMMAD PUTRA HIQWAN RAYQAL BIN MOHD AFENDI", "MUHAMMAD RAYQAL RIFQIY BIN MOHD QATAMAN", "MUHAMMAD SYAMER HAIKAL BIN AWANG", "MUHAMMAD UMAR MUHAIMIN BIN SOBRYALAISA", "AIRIS DELISHA BINTI AL HADI", "AMNA NUR QAIREEN BINTI MOHD ZAMZIRO", "CHE UMMIE SAIDATUL KHATIJAH BINTI CHE ANUAR", "NIKITA NURZAHIRA BINTI MUHAMMAD NATRAH", "NORAKILA BINTI AHMAD JAMAL", "NUR AQEELA NAZIRA BINTI ROSLAN", "NUR DELISHA HUMAIRA BINTI MUHAMMAD ZUL AKRAAM", "NUR FAIQAH QURRATU AIN BINTI ABDUL FATTAH", "NUR FALISHA QAISARA BINTI MOHD FAHMI", "NUR HANANIA MIQAYLA BINTI HAIRUL ANUAR", "NUR IZZARA SOFEA BINTI MOHD ADIB", "NUR MARDHIAH SUMAYYAH BINTI MUHAMMAD SOFFIAN", "NUR NAURA AMANDA BINTI ABDUL MU'IZZ", "NUR WAHIDA NABILA BINTI SOFIAN", "NUR YASMEEN NAURA BINTI MOHD NORHAFIZAN", "NUR ZAHRA DHIYA BINTI MOHD FARID", "NUR ZAKIRAH KHALISYA BINTI MOHD ZULKARNAIN", "NURUL SYAMIMI QAISARA BINTI SHAHRUL ANUAR", "PUTRI QALISHA QISTINA BINTI MUHAMMAD JOLAKMAN", "TUAN NUR ALANIAH QHADRA BINTI TUAN ROSLEE", "ZARA HUMAIRA BINTI MOHD SHAHMARULL FAIZULL"],
+            "4 Al-Biruni": ["DANIAL NAUFAL BIN ABDUL HANIF SAFWAN", "IRSYAD ZIYAD BIN ISKANDAR", "MUHAMAD KHALIQ HABEEB BIN MOHD KHAIRIL", "MUHAMMAD ADAM MUKHRIZ BIN BAHARUDDIN", "MUHAMMAD AFIQ IRFAN BIN ABDUL AZIZ", "MUHAMMAD AQIL KHALISH BIN AZRUL AZUAN", "MUHAMMAD DHUHA HANNAN BIN MOHD ROSTAM", "MUHAMMAD HAIQAL DANIEL BIN ZAKARIA", "MUHAMMAD HASBULLAH BIN MOHD NAPI", "MUHAMMAD IRSYADUDDIN BIN AZMI", "MUHAMMAD NAQIB BIN AGUNG SUPRIYANTO", "MUHAMMAD RIZQI BIN SYAHRIL", "PUTERA NOAH ZAYDAN BIN ZULHELMI", "TOBARI BIN NOR AZLAN", "TUAN MUHAMMAD EMIL HARRAZ BIN TUAN MUHAMMAD MASRI", "WAN MUHAMMAD AMMAR BIN WAN AZMAN", "ADRIANA FARANISA BINTI MOHD HERISAH", "AISYA HADIJA BINTI ASRI", "ASSYIFATU HAIESHA BINTI MOHD HASDI", "FATIN SAFIYA BINTI ROSLE", "MARYAM MALEEQA BINTI MOHD ABASRI", "NOR AZRATUL DARWIYAH BINTI ZULKARNINE", "NUR AINUN HUMAIRA BINTI MOHAMMAD KHAIRUDIN ASWADI", "NUR AMEERA ADIERA BINTI MOHD KHAIRUZAM @ AZROL", "NUR ARISHA MAISARA BINTI MAZLAN", "NUR DAMIA HAZWANI BINTI MOHD SHADAT", "NUR DHIA AMMARA BINTI MUHAMAD HARIS", "NUR FARISHA DIANDRA BINTI AHMAD FAZIL", "NUR FATHIA ASHEEQA BINTI MOHD ZULLY HAZREE", "NUR IZZ ZARA INARA BINTI MOHD KHAIRRUL KHITTWAN", "NUR SYAZMA BINTI ABD RASID", "NURUL JANNAH BINTI MOHD KHIROOL", "PUTERI NUR JUVTA BINTI MOHD TAMIZI", "TUAN NUR FATHIHA ARISSA BINTI TUAN MOHD FAIZAL", "UMMI HUMAIRA BINTI MOHAMAD BORHANUDIN", "WAN ATIYYAH BINTI WAN MOHAMED ASYRAF", "WAN NUR INSYIRAH BINTI WAN MOHD ARIF AMIRUDDIN"],
+            "4 Al-Farabi": ["ABDULLAH KASYAF BIN MOHD SUHAIMI", "CHE MUHAMMAD KHALISH AMZAR BIN CHE MOHD FAIZAL ANUAR", "MOHAMAD ADAM BIN KALINGGALAN", "MUHAMAD KHALISH ILMAN BIN ABDUL RAZAK", "MUHAMMAD ABBASYIR DARWISY BIN MOHD IKBAL HAKIM", "MUHAMMAD ADAM ARSYAD BIN ROSLI", "MUHAMMAD AL FATIH BIN MUHAMMAD NASRI", "MUHAMMAD AYUB LUTFI BIN MASHATA", "MUHAMMAD DANISH HASZRIQ BIN MOHD SAIFUL AZUAN", "MUHAMMAD FAQIH SHAQIMAN BIN MOHD SHAIFUDDIN", "MUHAMMAD FATEH AMIN BIN ROIS", "MUHAMMAD NAIM FITRI BIN MOHD SALEH", "MUHAMMAD NOR SYAKIR IRFAN BIN ABDUL RAHMAN", "MUHAMMAD RAFIF JAMIL BIN MOHD SABRI", "RAJA DANIAL RIZMAN ZAFRAN BIN RAJA MAHMUD", "AIN NUR AIISYAH BINTI SHARUMNIZAM", "AINUL MARDHIAH BINTI MOHAMAD TERMIZI", "AISHA ALYSHA BINTI MOHD AZIZAN", "AN'NUR FIRHANNAH EISABELLA BINTI MASRI", "CHE NUR SAFIYA HUMAIRA BINTI CHE MOHD NOOR SUBHIE", "NOR ZUHAYRA AFRINA BINTI ZULKIFLI", "NUR AIN AQILA FARHANA BINTI MAT ROSDI", "NUR AINNA SOFEA BINTI ZAINUDIN", "NUR ALESHA ADIRA BINTI MOHD KHAIRI", "NUR ALISYA HUMAIRA BINTI MUHAMMAD ABRAR", "NUR ANNASYA ADRIENA BINTI MUHAMMAD RIDZAN", "NUR DELISHA QAISARA BINTI AHMAD RIDZUAN", "NUR SAFIYA MADIHAH BINTI MOHD ROSMADI", "NUR SYAHIRAH ZAHRA BINTI MOHD SHAFIE", "NUR SYAKIRAH ZAHRA BINTI MOHD SHAFIE", "NURINA NUR ZULAIKHA BINTI MOHD ZAIMI", "NURJANNAH FITRIAH BINTI MOHD FARIS FAKHRULLAH", "PUTERI NUR HANI AZZAHRA BINTI HAFIZUL AHMA", "PUTRI NUR AISYA AMANI BINTI AMRAN", "RASYIQAH TIHANI BINTI MOHD ROZIE JEFRI", "SAIDATUL AISYAH BINTI SANSURI", "UMMUL KHADEEJAH BINTI MOHD AZMI"],
+            "4 Al-Kindi": ["AHMAD ANEEQ FIRMAN BIN MOHD RAZDI", "CHE MUHAMMAD KHALEEF AMSYAR BIN CHE MOHD FAIZAL ANUAR", "HARRAZ RYQAL BIN AHMAD FADZELIN", "IRSYAD FAIDHI BIN ISMARUDIN", "IZZUDIN AKMAL BIN MOHD AMRAN", "MUHAMAD DANIAL BIN MOHD AMRI", "MUHAMAD KHALISH IRFANUDIN BIN SAMSUDIN", "MUHAMMAD ADAM RAYYAN BIN MOHD ZAMRI", "MUHAMMAD AKIF MIRZA BIN MOHD HANIFF", "MUHAMMAD AMMAR SUFI BIN MOHD SIDEK", "MUHAMMAD EL ARFFAN BIN MUHAMMAD AZMAN", "MUHAMMAD FARIS BIN MOHD ASRI", "MUHAMMAD YUSUFF BIN MOHD ASRI", "PUTRA KASYFUL HAQ BIN ANUAR", "WAN MOHAMMAD FAHIM BIN WAN MOHD. FADHLI", "ZIYECH SHAQIRI BIN KHAIRUD DIN", "AFEEYA AZHARA BINTI MUHD AZRIE SYAZALI", "AISYAH ALEESYA BINTI MOHD HAIRUDIN", "NOR ARIANA QAIRA BINTI MOHD WAN ABDUL WAHAB", "NUR AMEERA ADIELA BINTI MOHD KHAIRUZAM @ AZROL", "NUR ARISSA ARWA BINTI CHE ISMAIL", "NUR ARISSA SAFIYYA BINTI MOHD RAZALI", "NUR AYRAA QAISARA BINTI ABDULLAH", "NUR DARWISHA MAISARA BINTI MAZLAN", "NUR IFFA DELISHA BINTI SHARIZAN", "NUR INSYIRAH BINTI KARIM", "NUR IRDINA SOFEA BINTI ABDUL KHALID", "NUR JANNAH BINTI RAZAK", "NUR KHAYRA IRDINA BINTI MOHD KHAIRULIZWAN", "NURUL HASNA HUMAIRA BINTI KASA", "PUTRI NUR HIDAYATUL ERLISA BINTI MOHAMAD HAFIZ", "SAIDATUL NUR QHADEEJA BINTI MOHD SUFIAN", "SHAFAA NUR AZZAHRA BINTI MOHD SHAMSURI", "SITI NUR DHALIA ARFINA BINTI MOHD NOR ASYHRAF", "ZARITH DIYANDRA ROSHA BINTI ABDULLAH", "ADHAWIYATUL RAHMAH BINTI AHMAD"],
+            "5 Al-Biruni": ["AHMAD ALIF NAZRULLAH BIN MOHD KHAIRI AZLI", "AHMAD AMAR ARRFAN BIN MOHD KHAIRUZAM @ AZROL", "AHMAD ARSHAD BIN AHMAD RIDWAN", "AMZAR ZAFRI BIN AMREE", "ASYRAF FIRDAUS BIN ABDULLAH", "CHE ADAM ALIF BIN CHE ANUAR", "MUHAMMAD AFFAN DARWISY AISY BIN MOHD IZUAN", "MUHAMMAD AIYRUL SYAFIQ BIN KAMARUDDIN", "MUHAMMAD ARYAN BIN MOHD IKHMAL", "MUHAMMAD FAIZ ZAQWAN BIN MOHD RIZWAN", "MUHAMMAD HAZIQ SYAHMI BIN MOHD ROSLI", "MUHAMMAD HAZRIN BIN MUHAMMAD NATRAH", "MUHAMMAD IDRIS BIN MOHD RAMDHAN", "MUHAMMAD IMAN SOLIHIN BIN MUHAMAD ABDUL HADI", "MUHAMMAD IRFAN BIN MD YASROL", "MUHAMMAD IWADH MULHIM BIN MOHD HARIS", "MUHAMMAD SYAMIL HADIF BIN NASROL IHHAM", "MUHAMMAD SYAWAL BIN MUSTAFFA", "MUHAMMAD THAQIF BIN MOHD AZLAN", "MUHAMMAD YUSOF BIN GHAZALI", "MAIZATUL ADAWIYAH BINTI ADUMI @ KAMARUDIN", "NUR ALYA QALISYA BINTI MOHD ZULFADLI", "NUR ANNISA BINTI MAT YASIN", "NUR DHIA QAIREEN BINTI MOHD ROSTAM", "NUR HANA SALSABILA BINTI MUHAMMAD ZULFAHMY", "NUR HANA SYAURA BINTI MOHD SAIFUDDIN", "NUR IRTIYAH DZAKIYAH BINTI MOHAMED ZUHIR", "NUR MAISARAH BINTI MOHAMAD ZULFADELI", "NUR MARYAM AQILA BINTI ABDUL RAHIM", "NUR SOFIYYAH AZZAHRA BINTI RAZAK", "NUR ZAHRA NAZIHA BINTI MOHD NORHAFIZAN", "NURUL AISYAH DAMIA BINTI SUFIAN", "NURUL ALEESYA DAMIA BINTI MOHD SUKRI", "PUTRI NUR AYUNIE NATASHA BINTI MOHD AFENDI", "SYAHIDA TASNIM BINTI SUMANTRI", "SYAHMINA BINTI IZANI", "WAN NOR FARISYHA DIANA BINTI WAN GHAFAR", "NUR FAZIAH BT MOHD FAUZI", "MUHAMMAD AQIL ZAKWAN BIN ABDULLAH"],
+            "5 Al-Farabi": ["AAKIF ZAFWAN BIN ABDULLAH", "AMMAR ZAFRAN BIN MOHD KHAIRI", "MUHAMAD AISH DANIYAL BIN MUHAMAD HARIS", "MUHAMAD FATTAH NAJMI BIN ABDUL FATTAH", "MUHAMAD YUSOF BIN ABDUL FATTAH", "MUHAMMAD ADAM ARSYAD BIN MOHD HAFIZ", "MUHAMMAD ADAM ASRAF BIN NOR FADZROL", "MUHAMMAD ADWA AFIQ BIN MUHD FADZLI", "MUHAMMAD AQIFF FATTAHUALLAH BIN MAT JID", "MUHAMMAD ASYRAAF JABRULLAH BIN MOHD ASNAWI", "MUHAMMAD DANISH BIN MOHD AMRI", "MUHAMMAD DARWISY BIN ASHAARI", "MUHAMMAD FATAH BIN MOHD FAIZAL", "MUHAMMAD HAZIQ IQBAL BIN MOHAMAD ZAINI", "MUHAMMAD ILHAM SOLEH BIN RAMZU NAZRI", "MUHAMMAD IZZ ASFA BIN MOHD NAZARUDI", "MUHAMMAD ZACK ZAFFRIEL BIN MOHD ZULKIFLI", "MUHAMMAD ZULHUSNI BIN MOHD RAHIM", "NAIL ANAQI BIN KHAIRUMIZAN", "TENGKU IMAN MUIZZ ADHA BIN TENGKU AZHAR", "AINUL MARDHIAH BINTI MOHD HAFIZUL", "AISYA UMAIRAH BINTI ABDUL RAHMAN", "AMARRA AFINA BINTI MOHD EMMAR ZAMSHAH", "EL ZAHRA NAAILA BINTI MOHD ADILA", "HUSNA HUMAYRAA BINTI HASWAWI", "NUR 'AAQILAH AMNI BINTI AHMAD BAZLI", "NUR AINA DALISYA BINTI MOHD NIZAM FAZRUL", "NUR AINATUL HUSNA BINTI AZLAN", "NUR AMNA SAFIAH BINTI JAMELLUDIN", "NUR DHIA ADRIANA BINTI MOHAMAD KHAIRUDDIN", "NUR FARHANA HANISAH BINTI AZHAR", "NUR FATHIAH AMANI BINTI MOHD ROSNI", "NUR QAIREEN IMANI BINTI MOHD SUHAIRY", "NUR RAUDHAH AMANI BINTI ROSDI", "SITI NUR AINA NADHIRAH BINTI ASMAWI", "SITI ROSMARIYANI BINTI ROSMAN", "TENGKU AINA HUSNA BINTI TENGKU NURUL FAKRI", "TUAN NUR AZZALEA QAIREEN BINTI TUAN ROSLEE"],
+            "5 Al-Kindi": ["AHMAD DANIAL HAZEEQ BIN AHMAD BARDAIN", "AHMAD DANISH IKHWAN BIN CHHEANG RIN", "AHZA MUJAHID BIN MOHD KAMARULZAMAN", "MOHAMAD ZARIF QUSYAIRI BIN AHMAD ZAKI", "MUHAMAD ADAM ARIQ BIN ABDULLAH", "MUHAMAD RAFIUDDIN BIN MUHAMAD RAHMAN", "MUHAMMAD ALIF DANIAL BIN MOHD AZLAN", "MUHAMMAD ALIF HAIDAR BIN MOHD ZAHID", "MUHAMMAD AMMAR KHALISH BIN ABDULLAH", "MUHAMMAD AMMAR RAYYAN BIN MOHD HAMIZI", "MUHAMMAD AMMAR ZAFRAN BIN MOHD SYAHRIZAI", "MUHAMMAD ARJUNA RIZQIN BIN MOHD RAZREEN", "MUHAMMAD ASHRAFF BIN ZULKIFLI", "MUHAMMAD DANIEL DARWISH BIN MOHD NORHAPIZA", "MUHAMMAD FAKHRI BIN ROSMADI", "MUHAMMAD HARIZ ADRIAN BIN ASMADI", "MUHAMMAD ISYRAF ZAYYAN BIN MOHD ROSLAN", "MUHAMMAD MUNIFF MUHAIMIN BIN ABU HASSAN", "MUHAMMAD NAQIB AL AMIN BIN MOHD NIZAM", "MUHAMMAD NUR LUTFI BIN ABDUL HAKIM", "MUHAMMAD RAFIQ ZAFRAN BIN MOHD RIZUAN", "MUHAMMAD RAYYAN IKHWAN BIN MOHD JALANI", "ADYRA AZZAHRA BINTI AZMADI", "CHE KU ESHAL AZZALEA BINTI CHE KU ALIAS", "DANISHA ELRIEKA SOFIA BINTI ABDUL KARIM", "HANIA SYAKIRA BINTI ABDULLAH", "NUR AIN HUMAIRA BINTI MAZLAN", "NUR ANEESHA BALQIS BINTI AHMAD", "NUR FAKHIRA AMANI BINTI MOHD FAHMI", "NUR FARIESHA ADRIANA BINTI ABDUL AZIZ", "NUR FATHIYATUSH SHAKIRA BINTI SUHAIDI", "NUR NADIRA HUDA BINTI MUHAMMAD KHAIRUL NIZAM", "NUR SAFIYYA MAISARA BINTI ABDUL FATTAH", "NURDHIA ARISHA BINTI ZULKIFLI", "NURUL AMRA NASRINA BINTI ZAIDI", "PUTERI NUR UMAIRAH BINTI MOHD AMIRUL ANHAR", "RAJA NORAMMARA ARISSA BINTI RAJA MOHAMAD AZLAN", "SITI DEWINA RAMADHANI BINTI ABDUL SALAM", "SITI ZARINA BINTI MOHD ZAMRI", "DHIA QAISARAH SOLEHAH BTINTI MOHD HELMI"],
+            "6 Al-Biruni": ["ATIQURRAHMAN BIN MOHD YUSOFF", "FAKKUAN NAZREEN BIN MOHD NOR BADRUL HISHAM", "IBHAR FITRI BIN ISMARUDIN", "MUHAMAD AZFAR AISY BIN AFTAR", "MUHAMAD YUNUS BIN ABDUL FATTAH", "MUHAMMAD ADAM SAIFULLAH BIN SAMZULI", "MUHAMMAD ADIB ADWA BIN CHE ISMAIL", "MUHAMMAD AKID BIN SUTILAN", "MUHAMMAD AKIF HAKIMIE BIN MOHD REMI", "MUHAMMAD AMZAR UZAIR BIN SHARUMNIZAM", "MUHAMMAD AQLAN WILDAN BIN SALADIN", "MUHAMMAD DANIAL HAZIQ BIN MOHD KHAIRRUL KHITTWAN", "MUHAMMAD FARIS DANISH BIN MOHD FAIRUZ", "MUHAMMAD HAZIQ RAYYAN BIN SHAHRUL ANUAR", "MUHAMMAD RAYHAN BIN MOHD SABRI", "MUHAMMAD SYARIF DARWISY BIN MOHD SYAIFFULDIN", "NUR IMAN HAKIMI BIN NORAWI", "TUAN MOHAMMAD IBNU AFFAN BIN TUAN MOHD SANUSI", "WAN ZIQRI HAKIM BIN WAN ZULKIFLI", "AMNAA NUR SALEEMA BINTI ABDUL JALIL", "AMNII NUR AMEENA BINTI ABDUL JALIL", "ARISYA IZARA BINTI ABDUL RAUFF", "CHE ENGKU NUR QASEH ARISSA BINTI CHE ENGKU ISKANDAR", "HASYA HAFIYA BINTI MOHD SHASRUL HASRA", "KHADEEJA AINA BINTI HASNAN", "MAWAR NURHUMAIRA BINTI ABU BAKAR", "NORDANILA BINTI ABDULLAH", "NUR FATHIA AQILAH BINTI KOLEK @ AZRUL", "NUR FITRI NATASYA BINTI SOFIAN", "NUR HANANIA UZMA BINTI MUHAMAD HAFIZI", "NUR HANIS ARISSA BINTI ABDUR RAHMAN", "NUR INTAN FARHANA BINTI ZAKARIA", "PUTERI FARIZA DAYANA BINTI SUTRISNO PRAPTO PARDI", "PUTRI AS SYAFA ATHIRAH BINTI MOHD RAZDI", "QHADEEJA AINNUR AISYA BINTI ANWAR SHAFIQ", "WAN NUR ARIANA BINTI WAN MOHD NASIR", "NUR NADIRAH BINTI ABDUL MUAEIZ"],
+            "6 Al-Farabi": ["ARMAAN YOUSSEF BIN AMIRUDDIN", "DANNIZ FIRDAUSY HASSAN BIN TATUH", "MUHAMMAD AFIQ KHALIF BIN MOHD SAIFUL", "MUHAMMAD AMMAR ARYAN BIN MOHD KHAIRI", "MUHAMMAD AMMAR RIZQI BIN ROSDI", "MUHAMMAD AMZAR IKHWAN BIN MOHD KHAIRUL ANUAR", "MUHAMMAD ASHSHAFF RAQIB BIN MOHD ASHROFF", "MUHAMMAD EIMRAN ARIEF BIN MUHAMAD NASRI", "MUHAMMAD HARRAZ UKAIL BIN MOHD FAIZAL", "MUHAMMAD IBNU QUSYAIRI BIN MOHD ARIS", "MUHAMMAD ISKANDAR BIN SYAHRIL", "MUHAMMAD NADEEM IQBAL BIN ABDUL RAFI", "MUHAMMAD NAUFAL AL AMIN BIN MOHD NIZAM", "MUHAMMAD RAYYAN RIZQIN BIN MOHD QATAMAN", "MUHAMMAD RIZQY FAKHRURRAZI BIN MOHD SAFWAN SARIY", "MUHAMMAD SOLIHIN BIN ZAINUDDIN", "NASRI BIN THIRADED NETH", "NIK AHMAD AMIR FIRDAUS BIN NIK SAMSI ANUAR", "RAJA NORFARESH RIEZQIN BIN RAJA ALI", "TUAN MUHAMMAD FATIH AZRI BIN TUAN MOHD FAIZAL", "ADRA NUR QAIREEN BINTI MOHD ZAMZIRO", "ARIANA ALISHA BINTI MOHD AMRAN", "NOR ELLFALINA BINTI BAHARUD DIN", "NUR AIN DAMIA BINTI ROSLE", "NUR ALISHA QAISARA BINTI ROSLAN", "NUR AMNI HANANI BINTI MOHD REZUAN", "NUR DHIA ADELIA BINTI MOHD ZAMHAM", "NUR IRIS RANIA BINTI MOHD SAIFULLAH", "NUR RANIA FARIHAH BINTI MOHD FAREZ IZWAN", "NURUL AIN ZAHRA BINTI ZAIDI", "QHAIRA HUSNA BINTI SHARI HAMDAN", "RUZILA BINTI MOHD RIDZUAN", "SYASYA QAISARA BINTI TUAN SHUHAIRIZAM", "SYULAIQA BATRISYA BINTI SULAIMAN", "TENGKU NUR KHASIF RANIA BINTI KAMARUL AZUAN", "UMI NUR ARSYIKIN NAJWAL BINTI ABDULLAH", "NUR ZARA SEDRISHA BINTI MOHD FIRDAUS AZAM"],
+            "6 Al-Kindi": ["AMMAR ZIQRI BIN ZAHARI", "MOHAMAD HANIF BIN MOHAMAD FAIZIE", "MOHAMAD MIKAIL BIN JAMIL", "MUHAMMAD ADAM BIN ASHAARI", "MUHAMMAD ADRIAN MIKHAIL BIN MOHD ABASRI", "MUHAMMAD AFIRASH IKHWAN BIN MOHD IRWAN HAZUAN", "MUHAMMAD AIDIL HARITH BIN HAIRULAZAM", "MUHAMMAD AIZAT AMZAR BIN MOHD YAAKOB", "MUHAMMAD AMIN SYAZHAN BIN BADRUL HISYAM", "MUHAMMAD AQIF FITRI BIN MOHD ZAMRI", "MUHAMMAD ARFA HASIF BIN MOHD SHAMSURI", "MUHAMMAD ASYRAF RIZQI BIN SHAHRUL NIZAM", "MUHAMMAD FARIZ HAKIMIE BIN ALIAS", "MUHAMMAD IQKLAS AZIQ BIN MUHAMMAD", "MUHAMMAD NOR IKHWAN BIN ABDULLAH", "MUHAMMAD SHAH AIDIL BIN SULAIMAN", "MUHAMMAD SHAMRIRULLOH BIN MUHAMMAD SAMRI", "MUHAMMAD THAQIF AFKAR BIN RUZLAN", "RAJA AQIL AISY HAFIDH BIN RAJA AZMAN", "AMMARA MALAEKA BINTI ABDUL 'AZHIM", "NUR AINA MAISARAH BINTI MUHAMMAD HAFIZAN", "NUR BATRISYA MAISARA BINTI MAZLAN", "NUR IMAN WADHIHAH BINTI PAXRURAZI", "NUR NAURAH ASSYIFAA BINTI ISMAIL", "NUR RAISHA AMNI BINTI MOHD RASHID", "NUR SYAFA AQILA BINTI ABDUL MU'IZ", "NUR SYAZA NABILAH BINTI MUHAMAD SHAZUAN", "NURUL AIN BATRISYIA BINTI ZULNIZAN", "NURUL SYAZWANI HUSNA BINTI YAHYA", "PUTERI NUR DAMIA MAISARAH BINTI MOHAMAD HAFIZ", "PUTRI NUR AIN NATASYA BINTI AMRAN", "PUTRI NUR SYAWAL DARWISYA BINTI MOHD HISHAM", "WAN NUR ALEEYA MAISARA BINTI WAN MOHD HAFIZUDDIN", "WAN NUR ANEESA BINTI WAN AZMAN", "WAN NUR MAWARDAH SAFIYYA BINTI WAN MUSTAFA", "NUR QAIRINA AMANI BINTI MOHD JUNAID"]
+        };
+
+const students = {};
+for (const c in classData) classData[c].forEach(n => { students[n] = c; });
+
+/* ================= BAHAGIAN 2: DATA RUJUKAN ================= */
+const OFFENCES = [
+    ["Ponteng sekolah", "Murid tidak hadir ke sekolah tanpa sebab yang munasabah dan tanpa sebarang makluman atau surat daripada ibu bapa/penjaga."],
+    ["Ponteng kelas", "Murid didapati tidak berada di dalam kelas semasa sesi pengajaran dan pembelajaran tanpa kebenaran guru."],
+    ["Lewat ke sekolah", "Murid kerap hadir lewat ke sekolah selepas waktu yang ditetapkan."],
+    ["Bergaduh", "Murid terlibat dalam pergaduhan dengan rakan sehingga mengganggu ketenteraman sekolah."],
+    ["Buli", "Murid didapati membuli rakan sama ada secara fizikal, lisan atau sosial."],
+    ["Kurang sopan / biadap", "Murid menunjukkan tingkah laku kurang sopan dan biadap terhadap guru atau kakitangan sekolah."],
+    ["Merosakkan harta sekolah", "Murid didapati merosakkan harta benda sekolah."],
+    ["Mencuri", "Murid didapati mengambil barang kepunyaan orang lain tanpa izin."],
+    ["Membawa barang larangan", "Murid membawa barang yang dilarang ke sekolah (cth: telefon bimbit / alat permainan elektronik)."],
+    ["Berbahasa kesat", "Murid menggunakan bahasa kesat / lucah terhadap rakan."],
+    ["Pakaian / rambut tidak kemas", "Murid tidak mematuhi peraturan pakaian seragam dan kekemasan diri sekolah."],
+    ["Tidak menyiapkan kerja rumah", "Murid kerap tidak menyiapkan kerja rumah yang diberikan oleh guru."]
+];
+const MONTHS = ["Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"];
+const DAYS = ["Ahad","Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu"];
+const TYPE_LABEL = { makluman:"makluman", panggilan:"panggilan", amaran:"amaran" };
+
+let letterType = "makluman";
+const $ = id => document.getElementById(id);
+const val = id => ($(id).value || "").trim();
+
+/* ================= BAHAGIAN 3: UTILITI ================= */
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function ph(text){ return `<span class="placeholder">[${esc(text)}]</span>`; }
+function or(v, p){ return v ? esc(v) : ph(p); }
+function parseD(v){ if(!v) return null; const [y,m,d] = v.split("-").map(Number); return new Date(y, m-1, d); }
+function fmtDate(v, withDay){
+    const d = parseD(v); if(!d) return "";
+    const s = `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    return withDay ? `${s} (${DAYS[d.getDay()]})` : s;
+}
+function fmtTime(v){
+    if(!v) return "";
+    let [h,m] = v.split(":").map(Number);
+    const period = h < 12 ? "pagi" : (h < 14 ? "tengah hari" : (h < 19 ? "petang" : "malam"));
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}.${String(m).padStart(2,"0")} ${period}`;
+}
+function todayISO(){ const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2500); }
+function store(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+
+/* ================= BAHAGIAN 4: SENARAI MURID ================= */
+function buildClassFilter(){
+    const sel = $("classFilter");
+    Object.keys(classData).forEach(c => { const o=document.createElement("option"); o.value=c; o.textContent=`${c} (${classData[c].length} murid)`; sel.appendChild(o); });
+}
+function buildDatalist(){
+    const dl = $("studentNames"); dl.innerHTML = "";
+    const f = $("classFilter").value;
+    const names = f ? [...classData[f]].sort() : Object.keys(students).sort();
+    names.forEach(n => { const o=document.createElement("option"); o.value=n; o.label=students[n]; dl.appendChild(o); });
+}
+function autoFillClass(){
+    const name = val("studentInput").toUpperCase();
+    const badge = $("studentBadge");
+    const ci = $("classInput");
+    if (students[name]) {
+        ci.value = students[name]; ci.readOnly = true;
+        badge.innerHTML = `<span class="badge ok">✔ Ditemui dalam senarai — ${esc(students[name])}</span>`;
+    } else if (name) {
+        if (ci.readOnly) ci.value = "";
+        badge.innerHTML = `<span class="badge no">Nama tiada dalam senarai. Pilih daripada cadangan atau isi kelas secara manual.</span>`;
+    } else { badge.innerHTML = ""; if (ci.readOnly) ci.value = ""; }
+}
+
+/* ================= BAHAGIAN 5: KANDUNGAN SURAT ================= */
+function render(){
+    const ref = val("refInput"), prefix = val("refPrefix") || "SKCRTG.700-7/1/1";
+    const refFull = `${esc(prefix)} ( ${ref ? esc(ref) : "&nbsp;&nbsp;&nbsp;&nbsp;"} )`;
+    document.querySelectorAll(".outRefFull").forEach(e => e.innerHTML = refFull);
+
+    const student = val("studentInput"), cls = val("classInput");
+    const pTitle = $("parentTitle").value, parent = val("parentInput");
+    const offence = val("offenceType"), issue = val("issueInput");
+    const schoolAction = val("schoolAction");
+
+    $("outDate").innerHTML = val("dateInput") ? esc(fmtDate(val("dateInput"))) : ph("Tarikh");
+    $("outParent").innerHTML = parent ? esc(((pTitle ? pTitle + " " : "") + parent).toUpperCase()) : ph("Nama Ibu Bapa / Penjaga");
+    const addr = val("addressInput");
+    $("outAddress").innerHTML = addr ? esc(addr).replace(/\n/g,"<br>") + "<br><br>" : "";
+    $("outStudent").innerHTML = or(student.toUpperCase(), "Nama Murid");
+    $("outClass").innerHTML = or(cls, "Kelas");
+    $("outSigner").textContent = `(${val("signerName").toUpperCase() || "PUAN KHALIFAH BINTI KHALIB"})`;
+    $("outSignerPost").textContent = val("signerPost") || "Guru Penolong Kanan Hal Ehwal Murid";
+
+    const warn = $("warnLevel").value;
+    const subjects = {
+        makluman: "MAKLUMAN SALAH LAKU DISIPLIN MURID",
+        panggilan: "PANGGILAN IBU BAPA / PENJAGA KE SEKOLAH BERHUBUNG SALAH LAKU DISIPLIN MURID",
+        amaran: `SURAT AMARAN ${warn} : SALAH LAKU DISIPLIN MURID`
+    };
+    $("outSubject").textContent = subjects[letterType];
+
+    // Jadual butiran kejadian
+    const rows = [["Jenis Kesalahan", or(offence, "Jenis kesalahan")]];
+    if (issue) rows.push(["Butiran Kejadian", esc(issue).replace(/\n/g,"<br>")]);
+    const incD = val("incDate"), incT = val("incTime");
+    if (incD || incT) rows.push(["Tarikh / Masa", [incD ? esc(fmtDate(incD, true)) : "", incT ? esc(fmtTime(incT)) : ""].filter(Boolean).join(", ")]);
+    if (val("incPlace")) rows.push(["Tempat", esc(val("incPlace"))]);
+    const table = `<table class="detail-table">${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>`;
+
+    const P = [];
+    P.push(`Dengan segala hormatnya perkara di atas adalah dirujuk.`);
+    P.push(`Adalah dimaklumkan bahawa anak jagaan tuan/puan, <b>${or(student.toUpperCase(),"Nama Murid")}</b> dari kelas <b>${or(cls,"Kelas")}</b>, didapati telah melakukan salah laku disiplin di sekolah seperti butiran berikut:` + table);
+    if (schoolAction) P.push(`Untuk makluman tuan/puan, pihak sekolah telah mengambil tindakan berikut: ${esc(schoolAction)}`);
+
+    const replyBy = val("replyByInput");
+    const returnText = replyBy ? `selewat-lewatnya pada <b>${esc(fmtDate(replyBy, true))}</b>` : "dalam tempoh <b>tiga (3) hari</b> dari tarikh surat ini";
+
+    if (letterType === "makluman") {
+        P.push(`Pihak sekolah memandang serius pelanggaran peraturan sekolah ini. Sehubungan dengan itu, tuan/puan diharap dapat mengambil maklum akan perkara ini serta memberi kerjasama untuk menasihati dan memantau anak jagaan tuan/puan agar tingkah laku ini tidak berulang pada masa hadapan.`);
+        P.push(`Sila lengkapkan dan kembalikan keratan maklum balas yang dilampirkan kepada pihak sekolah melalui anak jagaan tuan/puan ${returnText}.`);
+    } else if (letterType === "panggilan") {
+        const md = val("meetDateInput"), mt = val("meetTimeInput"), mp = val("meetPlaceInput");
+        P.push(`Pihak sekolah memandang serius pelanggaran peraturan sekolah ini. Sehubungan dengan itu, tuan/puan dijemput hadir ke sekolah untuk berjumpa dengan Guru Penolong Kanan Hal Ehwal Murid bagi membincangkan perkara ini seperti ketetapan berikut:
+            <table class="meeting-table">
+                <tr><td>Tarikh</td><td>: ${md ? esc(fmtDate(md, true)) : ph("Tarikh Perjumpaan")}</td></tr>
+                <tr><td>Masa</td><td>: ${mt ? esc(fmtTime(mt)) : ph("Masa")}</td></tr>
+                <tr><td>Tempat</td><td>: ${or(mp,"Tempat")}</td></tr>
+            </table>`);
+        P.push(`Kehadiran tuan/puan amatlah diharapkan bagi mencari jalan penyelesaian terbaik demi kebaikan dan masa depan anak jagaan tuan/puan. Sekiranya tuan/puan tidak dapat hadir pada tarikh tersebut, sila maklumkan kepada pihak sekolah lebih awal untuk menetapkan tarikh lain.`);
+        P.push(`Sila lengkapkan dan kembalikan keratan maklum balas yang dilampirkan ${returnText}.`);
+    } else {
+        const next = { PERTAMA:"Sekiranya salah laku ini berulang, surat amaran kedua akan dikeluarkan dan tuan/puan akan dipanggil ke sekolah.",
+                       KEDUA:"Sekiranya salah laku ini berulang, surat amaran terakhir akan dikeluarkan dan tindakan disiplin yang lebih tegas akan diambil mengikut peraturan sekolah.",
+                       TERAKHIR:"Ini merupakan amaran terakhir. Sekiranya salah laku ini berulang, pihak sekolah akan mengambil tindakan disiplin yang lebih tegas mengikut Peraturan-Peraturan Pendidikan (Disiplin Murid) dan peraturan sekolah yang berkuat kuasa." }[warn];
+        P.push(`Sehubungan dengan itu, surat ini merupakan <b>AMARAN ${esc(warn)}</b> kepada anak jagaan tuan/puan. ${next}`);
+        P.push(`Tuan/puan diminta untuk memberi perhatian serius, menasihati serta memantau tingkah laku anak jagaan tuan/puan dengan rapi. Sila lengkapkan dan kembalikan keratan maklum balas yang dilampirkan ${returnText}.`);
+    }
+    P.push(`Kerjasama dan keprihatinan daripada pihak tuan/puan amat kami hargai dan didahului dengan ucapan terima kasih.`);
+
+    $("outBody").innerHTML = P.map((t,i) => i === 0 ? `<p>${t}</p>` : `<p><span class="num">${i+1}.</span>${t}</p>`).join("");
+
+    // s.k.
+    $("ccBlock").style.display = $("showCC").checked ? "block" : "none";
+    const ct = val("classTeacher");
+    $("ccTeacher").textContent = `2. Guru Kelas ${cls || ""}${ct ? " — " + ct : ""}`.trim();
+
+    renderSlip(student, cls, offence, returnText);
+    updateProgress();
+}
+
+function renderSlip(student, cls, offence, returnText){
+    const show = $("showSlip").checked, sep = $("slipSeparate").checked;
+    const inline = $("slipInline"), host = $("slipSeparateHost");
+    inline.innerHTML = ""; host.innerHTML = "";
+    $("page2").style.display = (show && sep) ? "block" : "none";
+    if (!show) return;
+
+    const node = $("slipTemplate").content.cloneNode(true);
+    const prefix = val("refPrefix") || "SKCRTG.700-7/1/1", ref = val("refInput");
+    node.querySelector(".outRefFull").innerHTML = `${esc(prefix)} ( ${ref ? esc(ref) : "&nbsp;&nbsp;&nbsp;&nbsp;"} )`;
+    node.querySelector(".sStudent").innerHTML = or(student.toUpperCase(), "Nama Murid");
+    node.querySelector(".sClass").innerHTML = or(cls, "Kelas");
+    node.querySelector(".sType").textContent = letterType === "amaran" ? `amaran ${$("warnLevel").value.toLowerCase()}` : TYPE_LABEL[letterType];
+    node.querySelector(".sDate").innerHTML = val("dateInput") ? esc(fmtDate(val("dateInput"))) : ph("Tarikh");
+    node.querySelector(".sOffence").innerHTML = or(offence.toLowerCase(), "jenis kesalahan");
+
+    const lines = n => Array.from({length:n}, () => `<div class="dot-line"></div>`).join("");
+    let body = "";
+    if (letterType === "panggilan") {
+        body = `<p>Dengan ini saya mengesahkan bahawa saya:</p>
+            <p class="indent"><span class="box"></span><b>AKAN HADIR</b> pada tarikh dan masa yang ditetapkan.</p>
+            <p class="indent"><span class="box"></span><b>TIDAK DAPAT HADIR</b>. Cadangan tarikh/masa lain: ..............................................</p>
+            <p>Sebab / Catatan (jika tidak dapat hadir):</p>${lines(2)}`;
+    } else {
+        body = `<p>Tindakan / langkah pembetulan yang telah atau akan saya ambil ke atas anak jagaan saya:</p>${lines(3)}
+            <p class="indent"><span class="box"></span>Saya ingin berjumpa dengan pihak sekolah untuk berbincang lanjut.</p>`;
+    }
+    node.querySelector(".sBody").innerHTML = body;
+    node.querySelector(".sReturn").innerHTML = `* Sila kembalikan keratan ini kepada pihak sekolah ${returnText}.`;
+    (sep ? host : inline).appendChild(node);
+}
+
+/* ================= BAHAGIAN 6: KEMAJUAN & SEMAKAN ================= */
+function requiredFields(){
+    const r = [["dateInput","Tarikh surat"],["studentInput","Nama murid"],["classInput","Kelas"],["parentInput","Nama penjaga"],["offenceType","Jenis kesalahan"]];
+    if (letterType === "panggilan") r.push(["meetDateInput","Tarikh perjumpaan"],["meetTimeInput","Masa perjumpaan"]);
+    return r;
+}
+function updateProgress(){
+    const r = requiredFields(), done = r.filter(([id]) => val(id)).length;
+    const pct = Math.round(done / r.length * 100);
+    $("progressBar").style.width = pct + "%";
+    $("progressLabel").textContent = pct === 100 ? "✔ Sedia untuk dicetak" : `${pct}% lengkap (${done}/${r.length} maklumat wajib)`;
+}
+function doPrint(){
+    const missing = requiredFields().filter(([id]) => !val(id)).map(([,l]) => "• " + l);
+    if (missing.length && !confirm("Maklumat berikut belum diisi:\n\n" + missing.join("\n") + "\n\nTeruskan cetak juga?")) return;
+    window.print();
+}
+
+/* ================= BAHAGIAN 7: TANDATANGAN DIGITAL ================= */
+const canvas = $("sigCanvas"), ctx = canvas.getContext("2d");
+let drawing = false, hasSig = false;
+function setupCanvas(){
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 220 * dpr; canvas.height = 60 * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#000080";
+}
+function pos(e){ const r = canvas.getBoundingClientRect(); return { x:e.clientX - r.left, y:e.clientY - r.top }; }
+canvas.addEventListener("pointerdown", e => { e.preventDefault(); drawing = true; canvas.setPointerCapture(e.pointerId);
+    const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); $("sigHelp").style.display = "none"; hasSig = true; });
+canvas.addEventListener("pointermove", e => { if(!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+["pointerup","pointercancel"].forEach(ev => canvas.addEventListener(ev, () => { drawing = false; }));
+function clearSignature(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    $("sigImg").style.display = "none"; $("sigImg").removeAttribute("src");
+    $("sigHelp").style.display = "block"; $("sigUpload").value = ""; hasSig = false;
+}
+$("sigUpload").addEventListener("change", e => {
+    const f = e.target.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => { ctx.clearRect(0,0,canvas.width,canvas.height); $("sigImg").src = rd.result; $("sigImg").style.display = "block"; $("sigHelp").style.display = "none"; };
+    rd.readAsDataURL(f);
+});
+
+/* ================= BAHAGIAN 8: TETAPAN & PERISTIWA ================= */
+const SETTINGS = ["signerName","signerPost","refPrefix","meetPlaceInput"];
+function loadSettings(){
+    SETTINGS.forEach(id => { const v = load("skc_disiplin_" + id); if (v) $(id).value = v; });
+    // Pastikan nama lama tidak digunakan lagi
+    if (/ZAINON/i.test($("signerName").value)) $("signerName").value = "PUAN KHALIFAH BINTI KHALIB";
+    const logo = load("skc_disiplin_logo"); if (logo) { $("logoImg").src = logo; $("logoImg").style.display = "block"; }
+}
+$("saveSettingsBtn").addEventListener("click", () => { SETTINGS.forEach(id => store("skc_disiplin_" + id, val(id))); toast("Tetapan disimpan ✔"); });
+$("logoUpload").addEventListener("change", e => {
+    const f = e.target.files[0]; if(!f) return;
+    const rd = new FileReader();
+    rd.onload = () => { $("logoImg").src = rd.result; $("logoImg").style.display = "block"; store("skc_disiplin_logo", rd.result); toast("Logo dikemas kini"); };
+    rd.readAsDataURL(f);
+});
+
+function setType(t){
+    letterType = t;
+    document.querySelectorAll(".type-card").forEach(c => c.classList.toggle("active", c.dataset.type === t));
+    $("meetSection").style.display = t === "panggilan" ? "block" : "none";
+    $("warnLevelGroup").style.display = t === "amaran" ? "block" : "none";
+    $("sigStep").textContent = t === "panggilan" ? "5" : "4";
+    $("setStep").textContent = t === "panggilan" ? "6" : "5";
+    render();
+}
+document.querySelectorAll(".type-card").forEach(c => c.addEventListener("click", () => setType(c.dataset.type)));
+
+function buildChips(){
+    const box = $("offenceChips");
+    OFFENCES.forEach(([name, desc]) => {
+        const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = name;
+        b.addEventListener("click", () => { $("offenceType").value = name; if (!val("issueInput")) $("issueInput").value = desc; render(); });
+        box.appendChild(b);
+    });
+}
+
+$("classFilter").addEventListener("change", () => { buildDatalist(); $("studentInput").focus(); });
+$("studentInput").addEventListener("input", () => { autoFillClass(); render(); });
+$("studentInput").addEventListener("blur", () => { $("studentInput").value = $("studentInput").value.toUpperCase(); autoFillClass(); render(); });
+$("manualClassLink").addEventListener("click", e => { e.preventDefault(); $("classInput").readOnly = false; $("classInput").focus(); toast("Kelas kini boleh diisi secara manual"); });
+document.querySelectorAll(".controls input:not([type=file]), .controls textarea, .controls select").forEach(el => {
+    el.addEventListener("input", render); el.addEventListener("change", render);
+});
+$("clearSigBtn").addEventListener("click", clearSignature);
+$("printBtn").addEventListener("click", doPrint);
+$("newBtn").addEventListener("click", () => {
+    if (!confirm("Kosongkan semua maklumat murid dan kesalahan untuk surat baharu?")) return;
+    ["refInput","studentInput","classInput","parentInput","addressInput","offenceType","issueInput","incDate","incTime","incPlace","schoolAction","meetDateInput","replyByInput","classTeacher"].forEach(id => $(id).value = "");
+    $("classInput").readOnly = true; $("classFilter").value = ""; buildDatalist();
+    $("dateInput").value = todayISO(); clearSignature(); autoFillClass(); render(); toast("Borang dikosongkan");
+});
+$("sampleBtn").addEventListener("click", () => {
+    const first = Object.keys(students)[0];
+    $("refInput").value = "12"; $("studentInput").value = first; autoFillClass();
+    $("parentTitle").value = "Encik"; $("parentInput").value = "Ahmad bin Ali";
+    $("offenceType").value = OFFENCES[0][0]; $("issueInput").value = OFFENCES[0][1];
+    $("incDate").value = todayISO(); $("incPlace").value = "Sekolah";
+    render(); toast("Contoh dimuatkan — semak dan ubah mengikut keperluan");
+});
+document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") { e.preventDefault(); doPrint(); } });
+
+/* ================= MULA ================= */
+buildClassFilter(); buildDatalist(); buildChips(); setupCanvas(); loadSettings();
+$("dateInput").value = todayISO();
+setType("makluman");
+</script>
+</body>
+</html>
